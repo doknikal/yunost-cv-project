@@ -1,0 +1,11 @@
+ipykernel
+opencv-python-headless
+pillow-heif
+numpy
+pandas
+scipy
+scikit-learn
+matplotlib
+seaborn
+jupyter
+nbformat
