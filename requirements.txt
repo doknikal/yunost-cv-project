@@ -9,3 +9,9 @@ matplotlib
 seaborn
 jupyter
 nbformat
+pytesseract
+fastapi
+uvicorn
+python-multipart
+httpx
+pytest
