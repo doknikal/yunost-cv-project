@@ -1,6 +1,7 @@
 const $ = id => document.getElementById(id);
 const drop = $('drop'), fileInput = $('file'), statusEl = $('status');
 let uploadSequence = 0;
+let current = null;  // последний ответ /api/ocr — по нему строится разбор «проза / стихи»
 
 function setStatus(msg, kind) {
   statusEl.className = 'status' + (kind ? ' ' + kind : '');
@@ -20,6 +21,7 @@ async function upload(file) {
   $('result').classList.remove('show');
   $('diagnostics').hidden = true;
   $('text').value = '';
+  resetGenre();
   if (file.size > 25 * 1024 * 1024) {
     setStatus('Файл больше 25 МБ', 'error');
     return;
@@ -46,7 +48,9 @@ async function upload(file) {
 }
 
 function show(data) {
+  current = data;
   $('overlay').src = data.overlay;
+  $('genre').classList.toggle('show', data.blocks.length > 0);
   $('text').value = data.text;
   const note = $('note');
   note.hidden = false;
@@ -104,4 +108,124 @@ $('download').addEventListener('click', () => {
   a.download = 'raspoznannyj-tekst.txt';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+// ---------- дополнительно: разбор «проза / стихи» по рваности правого края ----------
+const SVG = 'http://www.w3.org/2000/svg';
+
+function resetGenre() {
+  current = null;
+  $('genre').classList.remove('show');
+  $('genre-result').hidden = true;
+  $('genre-status').textContent = '';
+  $('genre-boxes').replaceChildren();
+  $('genre-run').disabled = false;
+}
+
+function downloadText(text, name) {
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function drawGenreBoxes(blocks, verdicts) {
+  const svg = $('genre-boxes');
+  svg.setAttribute('viewBox', `0 0 ${current.page_size.width} ${current.page_size.height}`);
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.replaceChildren();
+  verdicts.forEach((v, i) => {
+    const b = blocks[i];
+    const rect = document.createElementNS(SVG, 'rect');
+    Object.entries({ x: b.x, y: b.y, width: b.w, height: b.h, rx: 6 }).forEach(([k, val]) => rect.setAttribute(k, val));
+    rect.setAttribute('class', 'kind-' + v.kind);
+    const label = document.createElementNS(SVG, 'text');
+    label.setAttribute('x', b.x + 8); label.setAttribute('y', b.y + 42);
+    label.setAttribute('class', 'kind-' + v.kind);
+    label.textContent = i + 1;
+    svg.append(rect, label);
+  });
+}
+
+function renderGenre(result) {
+  const blocks = current.blocks, verdicts = result.blocks;
+  const labels = { prose: 'проза', verse: 'стихи', short: 'короткие фрагменты', unknown: 'не определено' };
+  const summary = $('genre-summary');
+  summary.replaceChildren();
+  for (const kind of ['prose', 'verse', 'short', 'unknown']) {
+    if (!result.counts[kind]) continue;
+    const item = document.createElement('span');
+    item.className = 'kind-' + kind;
+    item.append(document.createElement('i'), document.createTextNode(`${labels[kind]}: ${result.counts[kind]}`));
+    item.style.fill = 'none';
+    summary.append(item);
+  }
+
+  const downloads = $('genre-downloads');
+  downloads.replaceChildren();
+  for (const [kind, name, title] of [['prose', 'proza.txt', 'Скачать прозу .txt'], ['verse', 'stihi.txt', 'Скачать стихи .txt']]) {
+    const texts = verdicts.filter(v => v.kind === kind).map(v => blocks[v.index].text);
+    if (!texts.length) continue;
+    const button = document.createElement('button');
+    button.textContent = title;
+    button.addEventListener('click', () => downloadText(texts.join('\n\n'), name));
+    downloads.append(button);
+  }
+
+  const list = $('genre-list');
+  list.replaceChildren();
+  for (const v of verdicts) {
+    const row = document.createElement('div');
+    row.className = 'genre-row';
+    const number = document.createElement('strong');
+    number.textContent = v.index + 1;
+    const kind = document.createElement('span');
+    kind.className = 'kind-' + v.kind;
+    kind.style.fill = 'none';
+    kind.append(document.createElement('i'), document.createTextNode(v.label));
+    const why = document.createElement('span');
+    why.className = 'why';
+    if (v.raggedness !== null) {
+      const bar = document.createElement('span'), fill = document.createElement('b');
+      bar.className = 'bar ' + 'kind-' + v.kind; bar.style.fill = 'none';
+      fill.style.width = Math.round(v.raggedness * 100) + '%';
+      bar.append(fill);
+      why.append(document.createTextNode('рваность края ' + v.raggedness.toLocaleString('ru-RU', { maximumFractionDigits: 2 })), bar);
+    }
+    why.append(document.createTextNode(`строк: ${v.lines} — ${v.reason}`));
+    const first = document.createElement('span');
+    first.className = 'first';
+    first.textContent = (blocks[v.index].text || '').trim().split('\n')[0];
+    row.append(number, kind, why, first);
+    list.append(row);
+  }
+  drawGenreBoxes(blocks, verdicts);
+  $('genre-result').hidden = false;
+}
+
+$('genre-run').addEventListener('click', async () => {
+  if (!current) return;
+  const data = current, button = $('genre-run');
+  button.disabled = true;
+  $('genre-status').className = 'status';
+  $('genre-status').textContent = 'Разбираем блоки…';
+  try {
+    const resp = await fetch('/api/genre', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blocks: data.blocks.map(b => ({ line_boxes: b.line_boxes })) }),
+    });
+    const result = await resp.json().catch(() => ({}));
+    if (current !== data) return;  // пока ждали ответ, загрузили другую страницу
+    if (!resp.ok || !Array.isArray(result.blocks)) throw new Error(typeof result.detail === 'string' ? result.detail : 'Ошибка сервера (' + resp.status + ')');
+    $('genre-status').textContent = 'Цвет рамок на странице слева — тип блока; номера совпадают со списком.';
+    renderGenre(result);
+  } catch (err) {
+    if (current !== data) return;
+    $('genre-status').className = 'status error';
+    $('genre-status').textContent = err.message || 'Не удалось разобрать блоки';
+  } finally {
+    if (current === data) button.disabled = false;
+  }
 });

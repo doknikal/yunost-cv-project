@@ -7,14 +7,14 @@ OCR любого текста соединены в одном FastAPI-прил�
 
 | Требование | Реализация, которую можно показать |
 |---|---|
-| Не менее пяти классов | `TextExtractor`, `TextPageResult` (`yunost/text.py`); `LayoutWord`, `LayoutBlock` (`yunost/layout.py`); `OcrEngine`, `TesseractEngine` (`yunost/ocr.py`); `CorpusRepository`, `CorpusFilter` (`yunost/storage.py`); `AnalyticsService` (`yunost/analytics.py`); `PlotlyCharts` (`yunost/charts.py`). Это рабочие объекты, не классы-заглушки. |
+| Не менее пяти классов | `TextExtractor`, `TextPageResult` (`yunost/text.py`); `LayoutWord`, `LayoutBlock` (`yunost/layout.py`); `OcrEngine`, `TesseractEngine` (`yunost/ocr.py`); `CorpusRepository`, `CorpusFilter` (`yunost/storage.py`); `AnalyticsService` (`yunost/analytics.py`); `PlotlyCharts` (`yunost/charts.py`); `GenreAnalyzer`, `GenreVerdict` (`yunost/genre.py`, дополнительный разбор «проза / стихи»). Это рабочие объекты, не классы-заглушки. |
 | Наследование | `TesseractEngine(OcrEngine)`: абстрактный класс `OcrEngine(ABC)` и наследник, который реализует `read_lines()` и использует унаследованный `read_block()` (лекция 2, «Абстрактные классы»); в актуальном OCR также предоставляет `read_layout()`. `TextPageResult(Sequence)` реализует стандартный интерфейс последовательности. |
 | Композиция и агрегация (термины лекции 2) | **Композиция (part-of)** — часть создаётся внутри и живёт вместе с владельцем: `AnalyticsService` создаёт `PlotlyCharts` в `__init__`; `TextExtractor` сам создаёт повторный движок `retry_engine`. **Агрегация (has-a)** — объект получен снаружи: `AnalyticsService` получает готовый `CorpusRepository`; `TextExtractor` может получить основной движок; `TextPageResult` хранит `LayoutBlock`, блок — `LayoutWord`. |
 | Реальная запись и чтение БД | `CorpusRepository.import_csv()` записывает выпуски, страницы и признаки в SQLite транзакцией; `select()` выполняет SQL JOIN и параметризованный отбор. Сервис аналитики читает только результаты этих SQL-запросов. |
 | Не менее трёх визуализаций с изменяемыми параметрами | `/analytics`: гистограмма (признак и интервалы), динамика (признак и среднее/медиана), рассеяние (признаки X/Y). Для всех — годы и тип источника, изменения без редактирования кода; доступны числовые таблицы. Фигуры строит plotly (`go.Figure`, `go.Bar`, `go.Scatter`, как в лекции 4) в `yunost/charts.py`, браузер только рисует их. |
 | Не менее трёх переопределений методов | `TextPageResult(Sequence)` явно переопределяет `__len__`, `__iter__`, `__getitem__` базового класса `collections.abc.Sequence`: Python-протокол контейнера принятых текстовых блоков. Используются **все три** в `server.page_response()`: счётчик, список блоков, первый блок. Как в разделе «Перегрузка» лекции 3, у `TextPageResult` и `LayoutBlock` переопределены `__str__` (текст) и `__repr__` (короткое описание вместо массива пикселей). Дополнительно — переопределение `read_lines()` у OCR-движка; старый `TextBlock.__lt__` сохранён, но не служит основным обоснованием. |
 | Декораторы | Собственный `@timed` с `functools.wraps` (`yunost/decorators.py`) измеряет время OCR, трёх аналитических методов и построения трёх графиков; `@functools.lru_cache` кэширует plotly.js (лекция 3, «Кэширование»); `@dataclass` (в т. ч. `frozen=True`), `@property`, `@staticmethod`, `@contextmanager`, `@abstractmethod`, маршруты `@app.get`/`@app.post`. |
-| Вызываемый сервер (бонус) | FastAPI: `POST /api/ocr`, четыре `GET /api/analytics/*`, `/api/health`, автодокументация `/docs`; `run_app.py` запускает только на `127.0.0.1`. |
+| Вызываемый сервер (бонус) | FastAPI: `POST /api/ocr`, `POST /api/genre` (разбор «проза / стихи» по рваности края), четыре `GET /api/analytics/*`, `/api/health`, автодокументация `/docs`; `run_app.py` запускает только на `127.0.0.1`. |
 
 Спецметоды считают/перебирают/индексируют **только принятые** блоки; сомнительные
 фрагменты остаются в `result.blocks`/`all_blocks`. Поддерживаются отрицательные индексы
@@ -32,7 +32,7 @@ OCR любого текста соединены в одном FastAPI-прил�
 | 2. Отношения классов | агрегация (has-a) и композиция (part-of) | `AnalyticsService`: репозиторий снаружи (агрегация), `PlotlyCharts` внутри (композиция) |
 | 3. Декораторы | декоратор-обёртка `inner(*args, **kwargs)` | `@timed` в `yunost/decorators.py` |
 | 3. Dataclasses | `@dataclass`, `@dataclass(frozen=True)` | `LayoutWord`, `LayoutBlock`, `TextPageResult`; неизменяемый `CorpusFilter` |
-| 3. Перегрузка | `__str__`, `__repr__`, методы протоколов | `TextPageResult`: `__len__`, `__iter__`, `__getitem__`, `__str__`, `__repr__`; `LayoutBlock`: `__str__`, `__repr__` |
+| 3. Перегрузка | `__str__`, `__repr__`, методы протоколов | `TextPageResult`: `__len__`, `__iter__`, `__getitem__`, `__str__`, `__repr__`; `LayoutBlock`: `__str__`, `__repr__`; `GenreVerdict.__str__` |
 | 3. Контекст | `with` и свой менеджер контекста | `CorpusRepository._connection()`, `ocr_budget()` |
 | 3. Кэширование | сохранить результат долгого вызова | `@functools.lru_cache` у `server.plotly_js()` |
 | 3. Указание типов | аннотации аргументов и результата | `AnalyticsService`, `PlotlyCharts` |
