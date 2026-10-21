@@ -32,8 +32,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 MAX_UPLOAD = 25 * 1024 * 1024          # 25 МБ — с запасом для фото с телефона
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-app = FastAPI(title="Юность: текст со страницы журнала",
-              description="Сервис распознаёт блоки текста без отбора по жанру: прозу, стихи, "
+app = FastAPI(title="Распознавание текста газет и журналов",
+              description="Сервис распознаёт текст на страницах газет и журналов без отбора по жанру: "
+                          "статьи, стихи, "
                           "заголовки и короткие фрагменты. Сохраняет строки и отступы. "
                           "Загрузки удаляются после обработки.")
 app.mount("/static", StaticFiles(directory=os.path.join(HERE, "static")), name="static")

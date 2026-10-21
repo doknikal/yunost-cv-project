@@ -76,7 +76,7 @@ class CorpusRepository:
             version = db.execute('PRAGMA user_version').fetchone()[0]
             objects = db.execute("SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'").fetchall()
             if application != APPLICATION_ID and (application != 0 or objects or version):
-                raise ValueError('Это не база корпуса «Юности». Существующие данные не изменены.')
+                raise ValueError('Это не база исследовательского корпуса. Существующие данные не изменены.')
             if version not in (0, SCHEMA_VERSION):
                 raise ValueError('Неподдерживаемая версия базы; существующие данные не изменены.')
             db.execute('CREATE TABLE IF NOT EXISTS issues ('

@@ -101,7 +101,7 @@ $('download').addEventListener('click', () => {
   const blob = new Blob([$('text').value], { type: 'text/plain;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'yunost-text.txt';
+  a.download = 'raspoznannyj-tekst.txt';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
