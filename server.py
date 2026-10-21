@@ -6,6 +6,7 @@ server.py — лендинг и API: загрузили фото страниц�
 Лендинг: http://127.0.0.1:8000/     Документация API: http://127.0.0.1:8000/docs
 """
 import base64
+import functools
 import logging
 import os
 import shutil
@@ -15,7 +16,7 @@ import threading
 from typing import Literal
 
 from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from starlette.datastructures import Headers
 from starlette.formparsers import MultiPartException
 from starlette.responses import JSONResponse
@@ -129,6 +130,19 @@ def corpus_filters(year_min: int = Query(1800, ge=1800, le=2200),
 @app.get('/analytics', include_in_schema=False)
 def analytics_page():
     return FileResponse(os.path.join(HERE, 'static/analytics.html'))
+
+
+@functools.lru_cache(maxsize=1)
+def plotly_js():
+    """plotly.js из установленного пакета plotly (offline, без CDN); читаем один раз — кэш."""
+    from plotly.offline import get_plotlyjs
+    return get_plotlyjs()
+
+
+@app.get('/vendor/plotly.min.js', include_in_schema=False)
+def plotly_bundle():
+    return Response(plotly_js(), media_type='application/javascript',
+                    headers={'Cache-Control': 'public, max-age=86400'})
 
 
 @app.get('/api/analytics/options')

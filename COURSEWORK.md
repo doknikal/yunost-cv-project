@@ -1,19 +1,19 @@
 # Парный курсовой проект: карта требований и защита
 
-Версия приложения **1.2.0**. Исследование геометрии страниц «Юности» и локальный
+Версия приложения **1.2.1** (графики на plotly и правки по материалам курса DH2025; OCR не менялся). Исследование геометрии страниц «Юности» и локальный
 OCR любого текста соединены в одном FastAPI-приложении. Жанровый фильтр не применяется.
 
 ## Где выполнены критерии
 
 | Требование | Реализация, которую можно показать |
 |---|---|
-| Не менее пяти классов | `TextExtractor`, `TextPageResult` (`yunost/text.py`); `LayoutWord`, `LayoutBlock` (`yunost/layout.py`); `OcrEngine`, `TesseractEngine` (`yunost/ocr.py`); `CorpusRepository`, `CorpusFilter` (`yunost/storage.py`); `AnalyticsService` (`yunost/analytics.py`). Это рабочие объекты, не классы-заглушки. |
-| Наследование | `TesseractEngine(OcrEngine)`: реализует абстрактный `read_lines()` и использует унаследованный `read_block()`; в актуальном OCR также предоставляет `read_layout()`. `TextPageResult(Sequence)` реализует стандартный интерфейс последовательности. |
-| Композиция | `TextExtractor` содержит основной/повторный OCR-движки; `TextPageResult` содержит `LayoutBlock`, блок содержит `LayoutWord`; `AnalyticsService` содержит `CorpusRepository`. |
+| Не менее пяти классов | `TextExtractor`, `TextPageResult` (`yunost/text.py`); `LayoutWord`, `LayoutBlock` (`yunost/layout.py`); `OcrEngine`, `TesseractEngine` (`yunost/ocr.py`); `CorpusRepository`, `CorpusFilter` (`yunost/storage.py`); `AnalyticsService` (`yunost/analytics.py`); `PlotlyCharts` (`yunost/charts.py`). Это рабочие объекты, не классы-заглушки. |
+| Наследование | `TesseractEngine(OcrEngine)`: абстрактный класс `OcrEngine(ABC)` и наследник, который реализует `read_lines()` и использует унаследованный `read_block()` (лекция 2, «Абстрактные классы»); в актуальном OCR также предоставляет `read_layout()`. `TextPageResult(Sequence)` реализует стандартный интерфейс последовательности. |
+| Композиция и агрегация (термины лекции 2) | **Композиция (part-of)** — часть создаётся внутри и живёт вместе с владельцем: `AnalyticsService` создаёт `PlotlyCharts` в `__init__`; `TextExtractor` сам создаёт повторный движок `retry_engine`. **Агрегация (has-a)** — объект получен снаружи: `AnalyticsService` получает готовый `CorpusRepository`; `TextExtractor` может получить основной движок; `TextPageResult` хранит `LayoutBlock`, блок — `LayoutWord`. |
 | Реальная запись и чтение БД | `CorpusRepository.import_csv()` записывает выпуски, страницы и признаки в SQLite транзакцией; `select()` выполняет SQL JOIN и параметризованный отбор. Сервис аналитики читает только результаты этих SQL-запросов. |
-| Не менее трёх визуализаций с изменяемыми параметрами | `/analytics`: гистограмма (признак и интервалы), динамика (признак и среднее/медиана), рассеяние (признаки X/Y). Для всех — годы и тип источника, изменения без редактирования кода; доступны числовые таблицы. |
-| Не менее трёх переопределений методов | `TextPageResult(Sequence)` явно переопределяет `__len__`, `__iter__`, `__getitem__` базового класса `collections.abc.Sequence`: Python-протокол контейнера принятых текстовых блоков. Используются **все три** в `server.page_response()`: счётчик, список блоков, первый блок. Дополнительно — переопределение `read_lines()` у OCR-движка; старый `TextBlock.__lt__` сохранён, но не служит основным обоснованием. |
-| Декораторы | Собственный `@timed` с `functools.wraps` (`yunost/decorators.py`) измеряет время OCR и трёх аналитических методов; `@dataclass`, `@property`, `@abstractmethod`, маршруты `@app.get`/`@app.post`. |
+| Не менее трёх визуализаций с изменяемыми параметрами | `/analytics`: гистограмма (признак и интервалы), динамика (признак и среднее/медиана), рассеяние (признаки X/Y). Для всех — годы и тип источника, изменения без редактирования кода; доступны числовые таблицы. Фигуры строит plotly (`go.Figure`, `go.Bar`, `go.Scatter`, как в лекции 4) в `yunost/charts.py`, браузер только рисует их. |
+| Не менее трёх переопределений методов | `TextPageResult(Sequence)` явно переопределяет `__len__`, `__iter__`, `__getitem__` базового класса `collections.abc.Sequence`: Python-протокол контейнера принятых текстовых блоков. Используются **все три** в `server.page_response()`: счётчик, список блоков, первый блок. Как в разделе «Перегрузка» лекции 3, у `TextPageResult` и `LayoutBlock` переопределены `__str__` (текст) и `__repr__` (короткое описание вместо массива пикселей). Дополнительно — переопределение `read_lines()` у OCR-движка; старый `TextBlock.__lt__` сохранён, но не служит основным обоснованием. |
+| Декораторы | Собственный `@timed` с `functools.wraps` (`yunost/decorators.py`) измеряет время OCR, трёх аналитических методов и построения трёх графиков; `@functools.lru_cache` кэширует plotly.js (лекция 3, «Кэширование»); `@dataclass` (в т. ч. `frozen=True`), `@property`, `@staticmethod`, `@contextmanager`, `@abstractmethod`, маршруты `@app.get`/`@app.post`. |
 | Вызываемый сервер (бонус) | FastAPI: `POST /api/ocr`, четыре `GET /api/analytics/*`, `/api/health`, автодокументация `/docs`; `run_app.py` запускает только на `127.0.0.1`. |
 
 Спецметоды считают/перебирают/индексируют **только принятые** блоки; сомнительные
@@ -21,6 +21,24 @@ OCR любого текста соединены в одном FastAPI-прил�
 и срезы, выход за границы даёт `IndexError`, первый блок пустого результата — `None`.
 Это явные переопределения существующих методов базового `Sequence`, не автоматически
 сгенерированные методы `dataclass`. Тест проверяет и наследование, и замену всех трёх методов.
+
+## Связь с материалами курса DH2025
+
+Код опирается на приёмы из тетрадей курса ([lwahomura/DH2025](https://github.com/lwahomura/DH2025)):
+
+| Лекция | Приём из тетради | Где в проекте |
+|---|---|---|
+| 2. ООП | базовый и абстрактный класс, наследник со своей реализацией | `OcrEngine(ABC)` → `TesseractEngine`; `Sequence` → `TextPageResult` |
+| 2. Отношения классов | агрегация (has-a) и композиция (part-of) | `AnalyticsService`: репозиторий снаружи (агрегация), `PlotlyCharts` внутри (композиция) |
+| 3. Декораторы | декоратор-обёртка `inner(*args, **kwargs)` | `@timed` в `yunost/decorators.py` |
+| 3. Dataclasses | `@dataclass`, `@dataclass(frozen=True)` | `LayoutWord`, `LayoutBlock`, `TextPageResult`; неизменяемый `CorpusFilter` |
+| 3. Перегрузка | `__str__`, `__repr__`, методы протоколов | `TextPageResult`: `__len__`, `__iter__`, `__getitem__`, `__str__`, `__repr__`; `LayoutBlock`: `__str__`, `__repr__` |
+| 3. Контекст | `with` и свой менеджер контекста | `CorpusRepository._connection()`, `ocr_budget()` |
+| 3. Кэширование | сохранить результат долгого вызова | `@functools.lru_cache` у `server.plotly_js()` |
+| 3. Указание типов | аннотации аргументов и результата | `AnalyticsService`, `PlotlyCharts` |
+| 3. Тесты | `assert`, отдельные тестовые функции | `tests/` (pytest) |
+| 4. Визуализация | `plotly.graph_objects`: `go.Figure`, `go.Bar`, `go.Scatter`, оформление осей | `yunost/charts.py` |
+| 5. Паттерны | «Адаптер» | `TesseractEngine` приводит pytesseract к интерфейсу `OcrEngine`; `PlotlyCharts` — данные SQL к фигуре plotly |
 
 ## Схема БД и происхождение данных
 
@@ -90,4 +108,4 @@ CSV сохранены как воспроизводимый источник; �
 OCR отличается только добавочным полем `first_block`; прежние поля сохранены.
 `RELIABILITY.md` — **историческая проверка OCR 1.1.0**, не отчёт о новых графиках.
 Проверка расширения 1.2.0 — отдельный `COURSEWORK_CHECK.md`. Загрузки OCR не сохраняются
-в исследовательскую БД. Chart.js включён локально с лицензией MIT.
+в исследовательскую БД. Графики — plotly (MIT); plotly.js отдаётся локально из пакета, без CDN.

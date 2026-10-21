@@ -1,11 +1,8 @@
 # Локальная библиотека графиков
 
-Chart.js **4.4.8**, лицензия MIT (`Chart.js.LICENSE.md`). Загружается с этого же
-локального сервера: для графиков не используются CDN, платные API или внешние запросы.
+Графики аналитики строит **plotly** (Python, `yunost/charts.py`), как в лекции 4 курса.
+Браузерная часть — plotly.js — не хранится в репозитории: сервер отдаёт её по адресу
+`/vendor/plotly.min.js` из установленного Python-пакета `plotly` (`plotly.offline.get_plotlyjs()`).
+CDN, платные API и внешние запросы не используются. Лицензия plotly — MIT.
 
-Источник: https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.js
-
-SHA256 `chart.umd.js`:
-`e4cf4d144b222634f2e64ff707cd57b953f8de4b65b231cd5ac6bde114648e4d`.
-
-Лицензия: https://github.com/chartjs/Chart.js/blob/v4.4.8/LICENSE.md
+До версии 1.2.1 здесь лежал Chart.js 4.4.8; он больше не нужен.

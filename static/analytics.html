@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Аналитика корпуса «Юности»</title>
   <link rel="stylesheet" href="/static/analytics.css">
-  <script src="/static/vendor/chart.umd.js" defer></script>
+  <script src="/vendor/plotly.min.js" defer></script>
   <script src="/static/analytics.js" defer></script>
 </head>
 <body>
@@ -36,7 +36,7 @@
       <label>Число интервалов<input id="bins" type="number" min="2" max="60" step="1" value="12" required></label>
     </fieldset>
     <p id="histogram-status" role="status" aria-live="polite"></p>
-    <div class="chart-frame"><canvas id="histogram-chart" role="img" aria-label="Гистограмма распределения выбранного признака">Числовые данные приведены в таблице ниже.</canvas></div>
+    <div class="chart-frame"><div id="histogram-chart" role="img" aria-label="Гистограмма распределения выбранного признака. Числовые данные приведены в таблице ниже."></div></div>
     <details><summary>Числа из базы для гистограммы</summary><div class="table-scroll"><table id="histogram-table"></table></div><p>Левая граница включается; правая исключается, кроме последнего интервала.</p></details>
   </section>
 
@@ -48,7 +48,7 @@
       <label>Агрегация по страницам<select id="aggregation"><option value="median">Медиана</option><option value="mean">Среднее</option></select></label>
     </fieldset>
     <p id="trend-status" role="status" aria-live="polite"></p>
-    <div class="chart-frame"><canvas id="trend-chart" role="img" aria-label="Динамика выбранного признака по годам отдельно для сканов и фотографий">Числовые данные приведены в таблице ниже.</canvas></div>
+    <div class="chart-frame"><div id="trend-chart" role="img" aria-label="Динамика выбранного признака по годам отдельно для сканов и фотографий. Числовые данные приведены в таблице ниже."></div></div>
     <details><summary>Числа из базы для динамики</summary><div class="table-scroll"><table id="trend-table"></table></div><p>Линии соединяют только наблюдаемые годы; значений для пропущенных лет нет.</p></details>
   </section>
 
@@ -60,7 +60,7 @@
       <label>Ось Y<select id="y-metric" data-metric></select></label>
     </fieldset>
     <p id="scatter-status" role="status" aria-live="polite"></p>
-    <div class="chart-frame"><canvas id="scatter-chart" role="img" aria-label="Диаграмма рассеяния двух выбранных признаков">Числовые данные приведены в таблице ниже.</canvas></div>
+    <div class="chart-frame"><div id="scatter-chart" role="img" aria-label="Диаграмма рассеяния двух выбранных признаков. Числовые данные приведены в таблице ниже."></div></div>
     <details><summary>Страницы и значения из базы</summary><div class="table-scroll"><table id="scatter-table"></table></div></details>
   </section>
   <footer>Исходные CSV и исторический ноутбук не изменяются. Пустое значение признака хранится как NULL и исключается только из соответствующего графика, а не заменяется нулём. Загруженные пользователем OCR-изображения в эту базу не записываются.</footer>

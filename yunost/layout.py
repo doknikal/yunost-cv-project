@@ -1,4 +1,4 @@
-"""Genre-neutral OCR geometry and physical-line output (normalized page pixels)."""
+"""layout.py — геометрия OCR без деления на жанры: слова, блоки и физические строки (пиксели страницы)."""
 from dataclasses import asdict, dataclass
 
 import numpy as np
@@ -18,9 +18,18 @@ class LayoutWord:
 
 @dataclass
 class LayoutBlock:
+    """Блок текста: состоит из слов LayoutWord. Отброшенный блок хранит причину в rejected."""
     words: list
     source: str = 'page'
     rejected: str = ''
+
+    def __str__(self):
+        return self.text
+
+    def __repr__(self):
+        x, y, w, h = self.box
+        state = f', отброшен: {self.rejected}' if self.rejected else ''
+        return f'LayoutBlock(слов: {len(self.words)}, строк: {len(self.lines)}, рамка {w}×{h} в ({x}, {y}){state})'
 
     @property
     def box(self):

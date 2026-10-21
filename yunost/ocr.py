@@ -43,7 +43,7 @@ class OcrLine:
 
 
 class OcrEngine(ABC):
-    """Общий интерфейс: блок текста (numpy-картинка) -> текст."""
+    """Общий интерфейс: блок текста (numpy-картинка) -> текст. Абстрактный класс (лекция 2)."""
 
     name = "base"
 
@@ -59,7 +59,10 @@ class OcrEngine(ABC):
 
 
 class TesseractEngine(OcrEngine):
-    """Tesseract (бесплатный, работает на обычном процессоре)."""
+    """Tesseract (бесплатный, работает на обычном процессоре).
+
+    Наследник OcrEngine и одновременно «Адаптер» из лекции 5: приводит интерфейс библиотеки
+    pytesseract (image_to_data) к нашему интерфейсу read_lines()/read_layout()."""
 
     name = "tesseract"
 

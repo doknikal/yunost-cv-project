@@ -6,7 +6,7 @@ import zipfile
 
 from setup_app import HERE, ensure_weights, verify_weights, WEIGHTS_SHA256
 
-VERSION = '1.2.0'
+VERSION = '1.2.1'
 
 
 def build():

@@ -36,11 +36,11 @@ def test_archive_is_complete_reproducible_and_excludes_generated_database(tmp_pa
     with zipfile.ZipFile(archive_path) as archive:
         files = {p.removeprefix('Yunost-OCR/'): archive.read(p) for p in archive.namelist()}
         manifest = json.loads(files.pop('MANIFEST.json'))
-        assert manifest['version'] == '1.2.0'
+        assert manifest['version'] == '1.2.1'
         assert manifest['files'] == {p: hashlib.sha256(content).hexdigest() for p, content in files.items()}
         required = {'import_corpus.py', 'yunost/storage.py', 'yunost/analytics.py',
                     'static/analytics.html', 'static/analytics.css', 'static/analytics.js',
-                    'static/vendor/chart.umd.js', 'static/vendor/Chart.js.LICENSE.md',
+                    'yunost/charts.py', 'static/vendor/README.md',
                     'data/manifest.csv', 'data/features.csv', 'COURSEWORK.md', 'COURSEWORK_CHECK.md'}
         assert required.issubset(files)
         assert not any(p.endswith('.sqlite3') or '__pycache__' in p for p in files)

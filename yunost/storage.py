@@ -1,4 +1,9 @@
-"""SQLite storage for the research corpus, never for users' OCR uploads."""
+"""
+storage.py — база SQLite исследовательского корпуса (111 страниц, 15 номеров).
+
+Загрузки пользователей для OCR сюда никогда не пишутся. Соединение с базой открывается
+через контекстный менеджер (лекция 3, «Контекст»): commit при успехе, rollback при ошибке.
+"""
 from contextlib import contextmanager
 import csv
 from dataclasses import dataclass
@@ -32,6 +37,7 @@ def default_database():
 
 @dataclass(frozen=True)
 class CorpusFilter:
+    """Отбор страниц для графиков: годы и тип источника. Неизменяемый dataclass (лекция 3)."""
     year_min: int = 1800
     year_max: int = 2200
     source: str = 'all'
@@ -44,7 +50,8 @@ class CorpusFilter:
 
 
 class CorpusRepository:
-    """One short-lived connection per operation: safe for FastAPI worker threads."""
+    """Чтение и запись корпуса в SQLite. На каждую операцию — своё короткое соединение,
+    поэтому класс безопасен для потоков FastAPI."""
 
     def __init__(self, path):
         self.path = Path(path)

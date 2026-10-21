@@ -223,7 +223,7 @@ def client(repository, monkeypatch):
 
 
 def test_analytics_page_assets_and_api(client):
-    for path in ['/analytics', '/static/analytics.js', '/static/analytics.css', '/static/vendor/chart.umd.js']:
+    for path in ['/analytics', '/static/analytics.js', '/static/analytics.css', '/vendor/plotly.min.js']:
         assert client.get(path).status_code == 200
     options = client.get('/api/analytics/options').json()
     assert options['pages'] == 111 and options['uploads_stored'] is False
@@ -283,3 +283,19 @@ def test_three_special_methods_and_live_response():
     empty = TextPageResult([debris], result.gray)
     assert len(empty) == 0 and list(empty) == [] and empty[:] == []
     assert server.page_response(empty)['first_block'] is None
+
+
+def test_plotly_figures_match_numbers(repository):
+    """Графики строятся на plotly из тех же чисел, что и таблицы."""
+    service = AnalyticsService(repository)
+    histogram = service.histogram('line_count', 9, CorpusFilter())
+    [bars] = histogram['figure']['data']
+    assert bars['type'] == 'bar' and len(bars['y']) == 9 and sum(bars['y']) == histogram['used_pages']
+    trend = service.trend('raggedness', 'median', CorpusFilter())
+    assert [t['name'] for t in trend['figure']['data']] == ['Фотографии', 'Сканы']
+    assert all(t['mode'] == 'lines+markers' for t in trend['figure']['data'])
+    scatter = service.scatter('n_columns', 'raggedness', CorpusFilter(source='photo'))
+    assert sum(len(t['x']) for t in scatter['figure']['data']) == scatter['used_pages'] == 35  # одна фото-страница без рваности
+    assert scatter['figure']['layout']['xaxis']['title']['text'] == 'Число колонок'
+    empty = service.histogram('line_count', 4, CorpusFilter(1958, 1960))
+    assert empty['figure']['data'][0]['y'] == []

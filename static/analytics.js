@@ -3,7 +3,6 @@ const $ = id => document.getElementById(id);
 const kinds = ['histogram', 'trend', 'scatter'];
 const charts = {}, requests = {}, labels = {};
 const sourceLabels = { scan: 'Сканы', photo: 'Фотографии' };
-const colors = { scan: '#d33852', photo: '#6586ad' };
 const number = value => Number(value).toLocaleString('ru-RU', { maximumFractionDigits: 6 });
 
 async function jsonRequest(url, controller) {
@@ -17,7 +16,7 @@ async function jsonRequest(url, controller) {
 }
 
 function clearChart(kind, state, message) {
-  if (charts[kind]) { charts[kind].destroy(); delete charts[kind]; }
+  if (charts[kind]) { Plotly.purge($(kind + '-chart')); delete charts[kind]; }
   $(kind + '-panel').dataset.state = state;
   $(kind + '-panel').setAttribute('aria-busy', String(state === 'loading'));
   $(kind + '-status').textContent = message;
@@ -42,16 +41,13 @@ function table(kind, headers, rows) {
   target.replaceChildren(caption, head, body);
 }
 
-function chartOptions(xTitle, yTitle, linearX = false) {
+// Фигуру (данные и оформление) строит сервер на plotly (yunost/charts.py); здесь её только рисуем.
+function draw(kind, figure) {
   const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
-  return {
-    responsive: true, maintainAspectRatio: false, animation: false, color: ink,
-    plugins: { legend: { labels: { color: ink } } },
-    scales: {
-      x: { ...(linearX ? { type: 'linear' } : {}), title: { display: true, text: xTitle, color: ink }, ticks: { color: ink } },
-      y: { title: { display: true, text: yTitle, color: ink }, ticks: { color: ink } }
-    }
-  };
+  const layout = { ...figure.layout, autosize: true, font: { ...(figure.layout.font || {}), color: ink } };
+  Plotly.react($(kind + '-chart'), figure.data, layout,
+    { responsive: true, displaylogo: false, modeBarButtonsToRemove: ['select2d', 'lasso2d'] });
+  charts[kind] = true;
 }
 
 function render(kind, data) {
@@ -59,40 +55,13 @@ function render(kind, data) {
   const count = `Выбрано страниц: ${data.selected_pages}; на графике: ${data.used_pages}; пропуски: ${data.missing_pages}.`;
   clearChart(kind, state, count + (data.used_pages ? '' : ' Нет данных для выбранных параметров.'));
   if (!data.used_pages) return;
+  draw(kind, data.figure);
   if (kind === 'histogram') {
-    const options = chartOptions(labels[data.metric], 'Число страниц');
-    options.plugins.legend.display = false;
-    options.scales.y.beginAtZero = true;
-    options.scales.y.ticks.precision = 0;
-    options.plugins.tooltip = { callbacks: { title: items => {
-      const bar = data.bars[items[0].dataIndex]; return `${number(bar.left)} — ${number(bar.right)}`;
-    } } };
-    charts[kind] = new Chart($(kind + '-chart'), {
-      type: 'bar', data: { labels: data.bars.map(b => `${Number(b.left.toPrecision(3))}–${Number(b.right.toPrecision(3))}`),
-        datasets: [{ label: 'Страниц', data: data.bars.map(b => b.count), backgroundColor: '#b5142ab8' }] }, options
-    });
     table(kind, ['Левая граница', 'Правая граница', 'Страниц'], data.bars.map(b => [number(b.left), number(b.right), b.count]));
   } else if (kind === 'trend') {
-    const options = chartOptions('Год', labels[data.metric], true);
-    options.scales.x.ticks.precision = 0;
-    options.scales.x.ticks.callback = value => String(value);
-    options.plugins.tooltip = { callbacks: { label: item => `${item.dataset.label}: ${number(item.raw.y)}; страниц: ${item.raw.pages}; номеров: ${item.raw.issues}` } };
-    charts[kind] = new Chart($(kind + '-chart'), {
-      type: 'line', data: { datasets: data.series.map(s => ({ label: sourceLabels[s.source],
-        data: s.points.map(p => ({ x: p.year, y: p.value, pages: p.pages, issues: p.issues })),
-        borderColor: colors[s.source], backgroundColor: colors[s.source], pointRadius: 5, spanGaps: false })) }, options
-    });
     table(kind, ['Источник', 'Год', data.aggregation === 'mean' ? 'Среднее' : 'Медиана', 'Страниц', 'Номеров'],
       data.series.flatMap(s => s.points.map(p => [sourceLabels[s.source], p.year, number(p.value), p.pages, p.issues])));
   } else {
-    const options = chartOptions(labels[data.x_metric], labels[data.y_metric], true);
-    options.plugins.tooltip = { callbacks: { title: items => `${items[0].raw.file} (${items[0].raw.year})`,
-      label: item => `${labels[data.x_metric]}: ${number(item.raw.x)}; ${labels[data.y_metric]}: ${number(item.raw.y)}` } };
-    charts[kind] = new Chart($(kind + '-chart'), {
-      type: 'scatter', data: { datasets: ['scan', 'photo'].filter(s => data.points.some(p => p.source === s)).map(source => ({
-        label: sourceLabels[source], data: data.points.filter(p => p.source === source), backgroundColor: colors[source], pointRadius: 4
-      })) }, options
-    });
     table(kind, ['Страница', 'Год', 'Источник', labels[data.x_metric], labels[data.y_metric]],
       data.points.map(p => [p.file, p.year, sourceLabels[p.source], number(p.x), number(p.y)]));
   }
@@ -136,7 +105,7 @@ async function refresh(kind) {
     }
     const data = await jsonRequest('/api/analytics/' + kind + '?' + params, controller);
     if (requests[kind] !== controller) return;
-    if (!Number.isInteger(data.used_pages) || !Array.isArray(data.bars || data.series || data.points)) throw new Error('Некорректный ответ сервера');
+    if (!Number.isInteger(data.used_pages) || !Array.isArray(data.bars || data.series || data.points) || !data.figure) throw new Error('Некорректный ответ сервера');
     render(kind, data);
   } catch (error) {
     if (requests[kind] !== controller) return;
@@ -150,7 +119,7 @@ function refreshAll() { return Promise.all(kinds.map(refresh)); }
 
 async function initialize() {
   try {
-    if (typeof Chart === 'undefined') throw new Error('Не загружен локальный Chart.js. Проверьте файл static/vendor/chart.umd.js.');
+    if (typeof Plotly === 'undefined') throw new Error('Не загружен локальный plotly.js. Проверьте, что установлен пакет plotly (pip install -r requirements-app.txt).');
     const data = await jsonRequest('/api/analytics/options', new AbortController());
     if (!Array.isArray(data.metrics) || !Array.isArray(data.years) || !data.years.length) throw new Error('В базе нет данных корпуса');
     for (const metric of data.metrics) labels[metric.key] = metric.label;

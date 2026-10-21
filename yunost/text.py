@@ -1,4 +1,4 @@
-"""All-text extraction. The legacy prose classifier is deliberately not called."""
+"""text.py — распознавание всего текста страницы. Старый отбор прозы здесь сознательно не вызывается."""
 from collections.abc import Sequence
 from dataclasses import dataclass
 
@@ -15,19 +15,34 @@ from .refinement import refine_blocks
 
 @dataclass
 class TextPageResult(Sequence):
+    """Результат страницы — последовательность принятых блоков (наследник abc.Sequence).
+
+    Переопределены методы протокола последовательности (__len__, __iter__, __getitem__)
+    и строковые представления (__str__, __repr__), как в разделе «Перегрузка» лекции 3.
+    """
     blocks: list
     gray: np.ndarray
 
     def __len__(self):
-        """Number of accepted text blocks; rejected OCR debris stays diagnostic."""
+        """Число принятых блоков текста; отброшенный OCR-мусор остаётся только в диагностике."""
         return len(self.text_blocks)
 
     def __iter__(self):
         return iter(self.text_blocks)
 
     def __getitem__(self, index):
-        """Index/slice accepted blocks in physical reading order."""
+        """Блок (или срез блоков) в порядке чтения."""
         return self.text_blocks[index]
+
+    def __str__(self):
+        """print(result) печатает распознанный текст."""
+        return self.text
+
+    def __repr__(self):
+        """Короткое описание вместо автоматического repr со всем массивом пикселей."""
+        height, width = self.gray.shape[:2]
+        return (f'TextPageResult(принято блоков: {len(self)}, '
+                f'отброшено: {len(self.blocks) - len(self)}, страница {width}×{height})')
 
     @property
     def text_blocks(self):

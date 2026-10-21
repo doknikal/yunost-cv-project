@@ -6,6 +6,7 @@ pandas
 scipy
 scikit-learn
 matplotlib
+plotly
 seaborn
 jupyter
 nbformat

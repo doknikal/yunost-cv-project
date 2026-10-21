@@ -23,7 +23,7 @@ button:hover { border-color: var(--accent); }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 24px; margin: 24px 0; }
 .chart-frame { position: relative; height: 340px; width: 100%; }
-.chart-frame canvas { max-width: 100%; }
+.chart-frame > div { width: 100%; height: 100%; }
 .panel[data-state="loading"] .chart-frame, .panel[data-state="empty"] .chart-frame, .panel[data-state="error"] .chart-frame { display: none; }
 .error, .panel[data-state="error"] [role="status"] { color: var(--accent); }
 [role="status"] { font-size: .9rem; }
