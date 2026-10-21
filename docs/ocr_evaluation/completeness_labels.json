@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "review_method": "Opened all four full individual data/norm images with read; then opened individual source-coordinate crops to verify every missing passage below. No contact-sheet-derived labels.",
+  "coordinate_system": "Original data/norm pixels, zero-based half-open [left, top, right, bottom]. Bounds are reviewed text-region rectangles, not exact glyph segmentation; they include small margins.",
+  "transcription_policy": "Manual transcription from visible source pixels. Physical line-wrap hyphens are joined; punctuation and paragraph breaks retained. References are short excerpts, not full-page ground truth.",
+  "snapshot": {
+    "path": "docs/ocr_evaluation/improved_corpus.json",
+    "sha256": "a81144c12f7c0eed909acbf5bf8f711309902f73e4491efc43c6d16bb02b167c",
+    "block_indices": "Zero-based positions in each snapshot page.blocks array.",
+    "stage_definitions": {
+      "detection_no_candidate": "Visible prose has no covering candidate in the saved snapshot.",
+      "detection_geometry_gate": "A partial or full candidate exists, but is_prose=false, raw_text/text empty and ocr_metrics empty; it never reached OCR. The saved 3/4-line candidates are below the five-line gate in the reviewed pipeline.",
+      "ocr_classifier": "Candidate was OCR-read but rejected as verse; its text survives only in diagnostics, not page.text.",
+      "ocr": "Accepted prose crop contains the visible glyph, but OCR omits it. Not a missing prose region."
+    },
+    "caution": "Findings describe this saved corpus, not any later rerun. Production files were being edited independently; do not infer that the current detector hash matches the snapshot."
+  },
+  "pages": [
+    {
+      "file": "1967-10_p03.png",
+      "size": [1520, 2000],
+      "image_sha256": "3bc89eaa734f49ee43b7c660756fd8da88008bc231004e5735e222119a3b63b6",
+      "reviewed_prose_regions": [
+        {
+          "bounds": [173, 155, 786, 1869],
+          "status": "incomplete",
+          "present_snapshot_blocks": [0, 1, 2, 3],
+          "visible_anchors": ["Если бы Кымытваль родилась", "Главный герой стихотворений и романов", "Я рада, когда читатели пишут мне", "Там молодые эскимосы знают один английский.", "Это как тоска по дому на Чукотке..."],
+          "missing_ids": ["1967_10_03_attribution", "1967_10_03_walk_left"]
+        },
+        {
+          "bounds": [811, 154, 1420, 607],
+          "status": "incomplete",
+          "present_snapshot_blocks": [5],
+          "visible_anchors": ["Прошлые поколения приучили нас", "И тогда ясно, что пора домой"],
+          "missing_ids": ["1967_10_03_walk_right", "1967_10_03_translation", "1967_10_03_poem_intro"]
+        }
+      ],
+      "missing_passages": [
+        {
+          "id": "1967_10_03_attribution",
+          "bounds": [179, 1445, 523, 1472],
+          "reference": "Вот что сказала Кымытваль:",
+          "anchors": ["Вот что сказала Кымытваль"],
+          "stage": "detection_no_candidate",
+          "snapshot_blocks": [],
+          "evidence": "Standalone one-line prose attribution between accepted blocks 2 and 3; absent from page.text."
+        },
+        {
+          "id": "1967_10_03_walk_left",
+          "bounds": [178, 1815, 787, 1868],
+          "reference": "...Мы шли по улице. Было морозно, и Кымытваль зябко поеживалась. На Чукотке бывает значительно",
+          "anchors": ["Мы шли по улице", "На Чукотке бывает значительно"],
+          "stage": "detection_no_candidate",
+          "snapshot_blocks": [],
+          "continues_in": "1967_10_03_walk_right",
+          "evidence": "Two visible prose lines at the bottom of the left column, below accepted block 3. No candidate covers them."
+        },
+        {
+          "id": "1967_10_03_walk_right",
+          "bounds": [811, 154, 1420, 252],
+          "reference": "холоднее, но там одеваются теплее. А здесь Тоня оделась, как москвичка, — пальто, шапочка и ботинки — и оказалась уязвимее москвички, потому что не привыкла быть так легко, по ее мнению, одетой.",
+          "anchors": ["холоднее, но там одеваются теплее", "не привыкла быть так легко"],
+          "stage": "detection_geometry_gate",
+          "snapshot_blocks": [4],
+          "evidence": "Block 4 is [815,159,601,91], four lines, is_prose=false, no OCR text/metrics and no rejection reason. This is not post-OCR rejection."
+        },
+        {
+          "id": "1967_10_03_translation",
+          "bounds": [812, 450, 1420, 525],
+          "reference": "Потом, улыбнувшись, она закончила:\n— Это я перевожу тебе стихи, которые, может быть, напишу вечером...",
+          "anchors": ["Потом, улыбнувшись, она закончила", "напишу вечером"],
+          "stage": "detection_geometry_gate",
+          "snapshot_blocks": [6],
+          "evidence": "Block 6 is only [818,456,267,68], three lines; it covers left-hand fragments rather than the full printed lines. It was not OCR-read. Text outside that partial rectangle also lacks a candidate."
+        },
+        {
+          "id": "1967_10_03_poem_intro",
+          "bounds": [811, 535, 1420, 607],
+          "reference": "Она написала эти стихи.\nВот они. Перед вами. В переводе Леонида Завальнюка.",
+          "anchors": ["Она написала эти стихи", "В переводе Леонида Завальнюка"],
+          "stage": "detection_no_candidate",
+          "snapshot_blocks": [],
+          "evidence": "Three prose introduction lines above the first poem; they are not verse and have no candidate."
+        }
+      ],
+      "exclusions": "The two verse bodies and their headings, the bottom byline, and running footer are not prose-completeness targets."
+    },
+    {
+      "file": "1957-12_p03.png",
+      "size": [1471, 2000],
+      "image_sha256": "6fe54209a22e7b18f0d3f9f5d332538cc6c20e9a1fba9ebf2688fb92d116d8e3",
+      "reviewed_prose_regions": [
+        {
+          "bounds": [95, 85, 502, 1157],
+          "status": "all_visible_prose_lines_represented_with_ocr_errors",
+          "present_snapshot_blocks": [0],
+          "visible_anchors": ["И снова заплакала.", "Он стащил через голову", "Пока я за кустами раздевала Валю", "о лапы и корни деревьев."],
+          "missing_ids": []
+        },
+        {
+          "bounds": [532, 85, 945, 1157],
+          "status": "all_visible_prose_lines_represented_with_ocr_errors",
+          "present_snapshot_blocks": [1],
+          "visible_anchors": ["Лесник перестал ругаться", "Не знаю, сколько они там", "Мы погрузились в лодку.", "на дно и стал растирать свою"],
+          "missing_ids": []
+        },
+        {
+          "bounds": [973, 85, 1386, 1166],
+          "status": "all_visible_prose_lines_represented_with_ocr_errors",
+          "present_snapshot_blocks": [2],
+          "visible_anchors": ["бугристую, всю в лиловых узлах икру", "Валя послушала через рукав", "Он стоял на корме", "огоньками вспыхивала тайга."],
+          "missing_ids": []
+        }
+      ],
+      "missing_passages": [],
+      "exclusions": "The framed lower section is a poem plus portrait/byline, not additional missing prose. Presence of all three prose columns was checked line-by-line against the snapshot; this does not certify OCR accuracy."
+    },
+    {
+      "file": "1957-12_p06.png",
+      "size": [1471, 2000],
+      "image_sha256": "c4d715ab91766a67901c439a8a7f1d530de6f74b72f10c6f220f360104a0ce07",
+      "reviewed_prose_regions": [
+        {
+          "bounds": [74, 83, 702, 762],
+          "status": "all_legible_prose_lines_represented_with_ocr_errors",
+          "present_snapshot_blocks": [1, 3],
+          "visible_anchors": ["Выбравшись вслед за командиром", "Руки танкиста обхватили санинструктора", "В медсанбате все трое лежали рядом.", "сказала об Игоре молоденькая сестра."],
+          "missing_ids": []
+        },
+        {
+          "bounds": [733, 83, 1369, 762],
+          "status": "incomplete",
+          "present_snapshot_blocks": [0],
+          "visible_anchors": ["Как Игорь был благодарен ей за эти слова!", "Сестра осторожно вытирала ему обожженный рот", "Я искуплю, всей жизнью искуплю"],
+          "missing_ids": ["1957_12_06_dialogue", "1957_12_06_coda"]
+        }
+      ],
+      "missing_passages": [
+        {
+          "id": "1957_12_06_dialogue",
+          "bounds": [733, 510, 1366, 635],
+          "reference": "Игорь.\n— Вы что-то сказали, дорогой? — наклонилась к нему сестра.\n— Искуплю, всей жизнью искуплю... и тогда забуду.",
+          "anchors": ["Вы что-то сказали, дорогой", "и тогда забуду"],
+          "stage": "detection_geometry_gate",
+          "secondary_stage": "ocr_classifier",
+          "snapshot_blocks": [2, 4],
+          "evidence": "Block 0 ends at 'прошептал', dropping the speaker 'Игорь.' and following dialogue. Block 2 [740,515,178,95] contains only left fragments, has four measured lines and no OCR. Much of both long dialogue lines lies outside that candidate. The final wrapped 'буду.' is OCR-read in block 4 but rejected with the coda as verse."
+        },
+        {
+          "id": "1957_12_06_coda",
+          "bounds": [754, 634, 1367, 761],
+          "reference": "— Он бредит, — вздохнула сестра.\nНо он не бредил, он верил, что искупит и забудет.\nИскупит? Да, непременно искупит.\nУже искупил.\nНо забудет ли?..",
+          "anchors": ["Он бредит", "Но он не бредил", "Уже искупил", "Но забудет ли"],
+          "stage": "ocr_classifier",
+          "snapshot_blocks": [4],
+          "evidence": "Block 4 [741,613,621,146] has raw OCR covering the coda but is_prose=false, rejected='стихи'; capital_start=0.8333333333333334. These are short narrative/dialogue sentences concluding the prose above, not lines from the framed poem below."
+        }
+      ],
+      "exclusions": "The framed verse below y=800 is not prose. Tiny cropped remnants above the first legible top lines were not reconstructed or labeled."
+    },
+    {
+      "file": "1957-10_p04.png",
+      "size": [1471, 2000],
+      "image_sha256": "707847d899110052230b8c01dc34a02bf47628fca80e3651e4c55302cf2fb67e",
+      "reviewed_prose_regions": [
+        {
+          "bounds": [72, 145, 708, 798],
+          "status": "all_prose_lines_represented_but_opening_drop_cap_missing",
+          "present_snapshot_blocks": [0],
+          "visible_anchors": ["Весною нынешнего года", "Разумеется, все, чем живут есильские комсомольцы", "Но целина, степная сторона", "несколько строк из газеты"],
+          "missing_ids": ["1957_10_04_drop_cap"]
+        },
+        {
+          "bounds": [739, 83, 1370, 798],
+          "status": "all_visible_prose_lines_represented_with_ocr_errors",
+          "present_snapshot_blocks": [8],
+          "visible_anchors": ["большом озере какие-нибудь пять тысяч утят", "Но где взять утят?", "И еще одна запись в памятной тетрадке", "Да, Клава хочет учиться."],
+          "missing_ids": []
+        }
+      ],
+      "missing_passages": [
+        {
+          "id": "1957_10_04_drop_cap",
+          "bounds": [73, 145, 120, 222],
+          "reference": "В",
+          "context_reference": "Весною нынешнего года",
+          "anchors": ["Весною нынешнего года"],
+          "stage": "ocr",
+          "snapshot_blocks": [0],
+          "evidence": "The decorative opening В is visible; accepted block 0 starts 'есною нынешнего года'. Its padded source crop contains the glyph, so a detection-stage explanation is not established. This is a missing letter, not a missing passage."
+        }
+      ],
+      "exclusions": "The article heading is metadata; the three-column lower piece is verse. The one-line verse footnote is not narrative prose. No missing short prose passage was found in the article body."
+    }
+  ]
+}

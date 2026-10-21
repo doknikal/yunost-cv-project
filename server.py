@@ -1,5 +1,5 @@
 """
-server.py — лендинг и API: загрузили фото страницы -> получили текст прозы.
+server.py — лендинг и API: загрузили фото страницы -> получили весь найденный текст.
 
 Запуск:
     uvicorn server:app --reload
@@ -9,21 +9,23 @@ import base64
 import logging
 import os
 import shutil
+import subprocess
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from yunost import ProseExtractor, UnreadableImage
+from yunost import TextExtractor, UnreadableImage
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
 MAX_UPLOAD = 25 * 1024 * 1024          # 25 МБ — с запасом для фото с телефона
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-app = FastAPI(title="Юность: проза со страницы журнала",
-              description="Загрузите фото страницы — сервис найдёт блоки прозы и распознает их текст. "
-                          "Стихи, заголовки и иллюстрации пропускаются. Файлы нигде не сохраняются.")
+app = FastAPI(title="Юность: текст со страницы журнала",
+              description="Сервис распознаёт блоки текста без отбора по жанру: прозу, стихи, "
+                          "заголовки и короткие фрагменты. Сохраняет строки и отступы. "
+                          "Файлы нигде не сохраняются.")
 app.mount("/static", StaticFiles(directory=os.path.join(HERE, "static")), name="static")
 
 _extractor = None
@@ -33,7 +35,7 @@ def get_extractor():
     """Движок создаём при первом запросе, чтобы сервер стартовал и без Tesseract."""
     global _extractor
     if _extractor is None:
-        _extractor = ProseExtractor()
+        _extractor = TextExtractor()
     return _extractor
 
 
@@ -46,12 +48,22 @@ def landing():
 def health():
     """Проверка, что Tesseract и русский язык установлены."""
     tesseract = shutil.which("tesseract")
-    return {"status": "ok" if tesseract else "tesseract_missing", "tesseract": tesseract}
+    languages = []
+    status = "tesseract_missing"
+    if tesseract:
+        try:
+            result = subprocess.run([tesseract, "--list-langs"], capture_output=True,
+                                    text=True, timeout=5, check=True)
+            languages = result.stdout.splitlines()[1:]
+            status = "ok" if "rus" in languages else "russian_missing"
+        except (subprocess.SubprocessError, OSError):
+            status = "tesseract_error"
+    return {"status": status, "tesseract": tesseract, "languages": languages}
 
 
 @app.post("/api/ocr")
 def recognize(file: UploadFile = File(..., description="Фото или скан страницы: JPG, PNG, HEIC")):
-    """Находит на странице блоки прозы и возвращает их текст и картинку с разметкой."""
+    """Находит все текстовые блоки и возвращает текст, координаты и разметку."""
     data = file.file.read(MAX_UPLOAD + 1)
     if len(data) > MAX_UPLOAD:
         raise HTTPException(413, "Файл больше 25 МБ")
@@ -69,8 +81,12 @@ def recognize(file: UploadFile = File(..., description="Фото или скан
     overlay = base64.b64encode(result.overlay_png()).decode("ascii")
     return {
         "text": result.text,
-        "prose_blocks": len(result.prose),
-        "other_blocks": len(result.blocks) - len(result.prose),
-        "blocks": [b.to_dict() for b in result.prose],
+        "text_blocks": len(result.text_blocks),
+        "other_blocks": len(result.blocks) - len(result.text_blocks),
+        "blocks": [b.to_dict() for b in result.text_blocks],
+        "all_blocks": [b.to_dict() for b in result.blocks],
+        "engine": "tesseract",
+        "mode": "all_text",
+        "page_size": {"width": result.gray.shape[1], "height": result.gray.shape[0]},
         "overlay": f"data:image/png;base64,{overlay}",
     }

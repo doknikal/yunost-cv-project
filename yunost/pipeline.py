@@ -1,22 +1,28 @@
 """
-pipeline.py — от файла с фото страницы до текста прозы.
+pipeline.py — старый конвейер только прозы (совместимость и исторические оценки).
+Приложение использует жанрово-нейтральный TextExtractor из text.py.
 
     файл -> страница (нужной высоты, в оттенках серого)
-         -> BlockDetector: блоки текста, среди них проза
-         -> OcrEngine: читает только блоки-прозу
+         -> BlockDetector: кандидаты по геометрии
+         -> подготовка и OcrEngine: физические строки кандидатов
+         -> проверка структуры: подтверждённая проза
          -> PageResult: текст, блоки и картинка с разметкой
 """
 import io
-from dataclasses import dataclass
+import re
+from dataclasses import asdict, dataclass
+from difflib import SequenceMatcher
 
 import cv2
 import numpy as np
 from PIL import Image, ImageOps
 
 import cvpipe
-from .blocks import BlockDetector, ProseSettings, TextBlock
+from .blocks import BlockDetector, ProseSettings, TextBlock, reading_order
 from .decorators import timed
-from .ocr import OcrEngine, TesseractEngine, capital_start_ratio, cyrillic_ratio, word_quality
+from .preprocessing import prepare_text
+from .recovery import column_extensions
+from .ocr import OcrEngine, TesseractEngine, capital_start_ratio, cyrillic_ratio, word_quality, text_structure
 
 try:                                   # фото с iPhone приходят в формате HEIC
     import pillow_heif
@@ -38,7 +44,13 @@ def load_page(data):
     """Байты файла -> страница в оттенках серого высотой TARGET_HEIGHT."""
     try:
         img = Image.open(io.BytesIO(data))
+        if img.width * img.height > Image.MAX_IMAGE_PIXELS:
+            raise UnreadableImage("Изображение больше 80 мегапикселей")
+        if min(img.size) < 64 or not 0.15 <= img.width / img.height <= 6:
+            raise UnreadableImage("Загрузите целую страницу: изображение слишком узкое или маленькое")
         img = ImageOps.exif_transpose(img).convert("L")   # учитываем поворот с телефона
+    except UnreadableImage:
+        raise
     except Exception as exc:
         raise UnreadableImage("Не удалось открыть файл как изображение") from exc
     width = round(img.width * TARGET_HEIGHT / img.height)
@@ -52,7 +64,8 @@ class PageResult:
 
     @property
     def prose(self):
-        return [b for b in self.blocks if b.is_prose]
+        # Rejected wide artwork/verse must not bridge two genuine columns.
+        return reading_order([b for b in self.blocks if b.is_prose])
 
     @property
     def text(self):
@@ -61,13 +74,11 @@ class PageResult:
     def overlay_png(self):
         """Страница с рамками: зелёные — проза (прочитана), серые — всё остальное."""
         vis = cv2.cvtColor(self.gray, cv2.COLOR_GRAY2BGR)
-        for number, b in enumerate(self.prose, start=1):
-            cv2.rectangle(vis, (b.x, b.y), (b.x + b.w, b.y + b.h), PROSE_COLOR, 6)
-            cv2.putText(vis, str(number), (b.x + 10, b.y + 60),
-                        cv2.FONT_HERSHEY_SIMPLEX, 2.2, PROSE_COLOR, 6)
-        for b in self.blocks:
-            if not b.is_prose:
-                cv2.rectangle(vis, (b.x, b.y), (b.x + b.w, b.y + b.h), OTHER_COLOR, 3)
+        for number, b in enumerate(self.blocks, start=1):
+            color = PROSE_COLOR if b.is_prose else OTHER_COLOR
+            cv2.rectangle(vis, (b.x, b.y), (b.x + b.w, b.y + b.h), color, 6 if b.is_prose else 3)
+            cv2.putText(vis, str(number), (b.x + 5, b.y + 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.0, color, 2)
         ok, png = cv2.imencode(".png", cv2.resize(vis, None, fx=0.5, fy=0.5,
                                                   interpolation=cv2.INTER_AREA))
         return png.tobytes()
@@ -86,23 +97,112 @@ class ProseExtractor:
         gray = load_page(data)
         blocks = self.detector.detect(gray)
         flat = cvpipe.normalize_illumination(gray)       # ровный фон — лучше для OCR
-        pad = 6
         for b in blocks:
             if not b.is_prose:
                 continue
-            crop = flat[max(0, b.y - pad):b.y + b.h + pad,
-                        max(0, b.x - pad):b.x + b.w + pad]
-            text, lines = self.engine.read_block(crop, b.line_h)
+            text, lines = self._read(b, flat)
             self._verify(b, text, lines)
+        for b in column_extensions(self.detector.text_mask(gray), blocks):
+            text, lines = self._read(b, flat)
+            self._verify(b, text, lines)
+            b.ocr_metrics['column_recovery'] = True
+            # A prose ending made of short dialogue sentences can lower the
+            # overall flush/hyphen ratio. Require an actual, well-retained prose
+            # anchor rather than weakening the standalone short-block gate.
+            anchors = [a for a in blocks if a.is_prose and
+                       b.overlap_with(a) >= 0.95 * a.area]
+            words = re.findall(r'[а-яё]+', text.lower())
+            retained = []
+            for anchor in anchors:
+                original = re.findall(r'[а-яё]+', anchor.text.lower())
+                matches = SequenceMatcher(None, original, words, autojunk=False)
+                retained.append(sum(m.size for m in matches.get_matching_blocks()) /
+                                max(1, len(original)))
+            b.ocr_metrics['anchor_word_coverage'] = max(retained, default=0.0)
+            if (b.rejected == 'мало признаков прозы' and retained and max(retained) >= 0.90
+                    and b.ocr_metrics['continuation'] >= self.settings.min_continuation
+                    and b.ocr_metrics['hyphenated'] * (b.ocr_metrics['lines'] - 1) >= 2):
+                b.is_prose, b.rejected = True, ''
+            blocks.append(b)
+        blocks = reading_order(blocks)
+        self._remove_duplicate_text(blocks)
         return PageResult(blocks, gray)
 
+    def _read(self, block, flat):
+        pad = 6
+        crop = flat[max(0, block.y - pad):block.y + block.h + pad,
+                    max(0, block.x - pad):block.x + block.w + pad]
+        crop, block.deskew_angle, block.noise_level = prepare_text(crop)
+        text, lines = self.engine.read_block(crop, block.line_h)
+        block.text = text
+        block.raw_text = "\n".join(line.text for line in lines)
+        block.ocr_metrics = asdict(text_structure(lines, block.line_h))
+        block.ocr_metrics['capital_start'] = capital_start_ratio(lines)
+        return text, lines
+
+    @staticmethod
+    def _remove_duplicate_text(blocks):
+        """Drop overlapping rereads of the same passage, not repeated prose elsewhere.
+
+        A frame may create a second partial crop of a wide introduction. Geometry
+        alone cannot remove it because neither rectangle contains the other.
+        Require substantial physical overlap AND matching word sequences; keep
+        the fuller reading, retaining the partial OCR in diagnostics.
+        """
+        accepted = [b for b in blocks if b.is_prose]
+        tokens = {id(b): re.findall(r"[а-яё]+", b.text.lower()) for b in accepted}
+        accepted.sort(key=lambda b: len(tokens[id(b)]), reverse=True)
+        kept = []
+        for block in accepted:
+            words = tokens[id(block)]
+            duplicate = False
+            if len(words) >= 20:
+                for other in kept:
+                    if block.overlap_with(other) < 0.5 * min(block.area, other.area):
+                        continue
+                    matches = SequenceMatcher(None, words, tokens[id(other)], autojunk=False)
+                    if sum(m.size for m in matches.get_matching_blocks()) >= 0.80 * len(words):
+                        duplicate = True
+                        break
+            if duplicate:
+                block.is_prose, block.rejected = False, "повтор текста"
+            else:
+                kept.append(block)
+
     def _verify(self, block, text, lines):
-        """Вторая проверка по прочитанному тексту: отсеивает стихи с ровными строками
-        и блоки, где вместо текста ноты или рисунок."""
+        """Require positive prose evidence; detector candidates can include poems."""
+        s = self.settings
+        structure = text_structure(lines, block.line_h)
+        block.text = text  # Rejected OCR remains available for diagnostics only.
         if (cyrillic_ratio(lines) < self.settings.min_cyrillic
                 or word_quality(lines) < self.settings.min_word_quality):
             block.is_prose, block.rejected = False, "не текст"
-        elif capital_start_ratio(lines) > self.settings.max_capital_start:
+        elif structure.lines < s.min_lines:
+            block.is_prose, block.rejected = False, "мало строк"
+        elif (capital_start_ratio(lines) > s.max_capital_start
+              or structure.deep_indent > s.max_deep_indent):
             block.is_prose, block.rejected = False, "стихи"
         else:
-            block.text = text
+            # Word hyphenation and lowercase continuations are independent of
+            # the unreliable pixel-band flushness of a tilted candidate. For
+            # custom OCR engines without coordinates, use that score only as
+            # a fallback, never as sufficient evidence on its own.
+            flush = structure.right_flush
+            if flush is None:
+                flush = block.flush
+            wrapping = structure.continuation >= s.min_continuation
+            hyphenated = (structure.hyphenated >= s.min_hyphenated
+                          and structure.hyphenated * (structure.lines - 1) >= 2)
+            # A single word break can support a short prose paragraph, but
+            # only with near-continuous wrapping AND a very consistent margin.
+            short_wrapped = (structure.hyphenated > 0 and flush >= 0.85
+                             and structure.continuation >= 0.80
+                             and structure.stanza_breaks < 0.10)
+            # A handful of similarly long poem lines can look justified by
+            # chance. Without word hyphenation, require a larger sample.
+            regular = (structure.lines >= s.min_unhyphenated_lines
+                       and flush >= s.min_ocr_flush and structure.stanza_breaks < 0.10)
+            if wrapping and (regular or hyphenated or short_wrapped):
+                block.is_prose, block.rejected = True, ""
+            else:
+                block.is_prose, block.rejected = False, "мало признаков прозы"

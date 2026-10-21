@@ -1,4 +1,4 @@
-"""Тесты поиска прозы, OCR-сборки текста и API. Запуск:  pytest tests/"""
+"""Legacy prose-only compatibility tests plus current all-text HTTP API tests."""
 import glob
 import os
 import shutil
@@ -29,19 +29,20 @@ def read(path):
 
 # ---------- поиск блоков (без OCR) ----------
 
-def test_prose_columns_found_and_poem_in_frame_skipped():
+def test_prose_columns_are_candidates_before_ocr_verification():
     blocks = BlockDetector().detect(cv2.imread(PROSE_PAGE, cv2.IMREAD_GRAYSCALE))
-    prose = [b for b in blocks if b.is_prose]
+    prose = [b for b in blocks if b.is_prose and b.y < 1300 and b.n_lines >= 40]
     assert len(prose) == 3
     assert [b.x for b in prose] == sorted(b.x for b in prose)    # слева направо
     assert all(b.n_lines >= 40 for b in prose)                   # три длинные колонки
-    assert not any(b.y > 1300 for b in prose)                    # стихи внизу — не проза
+    # A candidate below the separator can be a poem: only OCR verification
+    # makes a final decision. The full-pipeline test below checks exclusion.
 
 
 @pytest.mark.parametrize("path", [VERSE_PAGE, VERSE_PHOTO])
+@needs_tesseract
 def test_verse_pages_have_no_prose(path):
-    blocks = BlockDetector().detect(cv2.imread(path, cv2.IMREAD_GRAYSCALE))
-    assert not [b for b in blocks if b.is_prose]
+    assert not ProseExtractor().extract(read(path)).prose
 
 
 def test_reading_order_columns_then_top_to_bottom():
@@ -98,11 +99,12 @@ def test_api_rejects_bad_files(client):
 
 
 @needs_tesseract
-def test_api_returns_prose_text_and_overlay(client):
+def test_api_returns_prose_and_verse_text_and_overlay(client):
     resp = client.post("/api/ocr", files={"file": ("page.png", read(PROSE_PAGE), "image/png")})
     assert resp.status_code == 200
     body = resp.json()
-    assert body["prose_blocks"] == 3 and "Чуфистов" in body["text"]
+    assert body['mode'] == 'all_text' and body['text_blocks'] > 3
+    assert 'Чуфистов' in body['text'] and 'Сегодня осень' in body['text']
     assert body["overlay"].startswith("data:image/png;base64,")
 
 

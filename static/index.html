@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Проза из «Юности»</title>
+<title>Текст из «Юности»</title>
 <style>
   :root {
     --bg: #faf7f2; --card: #ffffff; --ink: #1f1b16; --muted: #6b645b;
@@ -45,7 +45,8 @@
   .legend { font: .85rem system-ui, sans-serif; color: var(--muted); margin: 10px 0 0; }
   .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -1px; margin: 0 4px 0 0; }
   textarea { width: 100%; min-height: 420px; resize: vertical; border: 1px solid var(--line); border-radius: 6px;
-             padding: 12px; background: var(--bg); color: var(--ink); font: inherit; }
+             padding: 12px; background: var(--bg); color: var(--ink); font: .9rem/1.5 monospace;
+             white-space: pre; overflow-wrap: normal; }
   .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
   button { font: 600 .95rem system-ui, sans-serif; padding: 9px 16px; border-radius: 8px; cursor: pointer;
            border: 1px solid var(--line); background: var(--card); color: var(--ink); }
@@ -53,15 +54,20 @@
   button:focus-visible, .drop:focus-within { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
   .note { margin-top: 12px; padding: 10px 14px; border-radius: 8px; background: var(--warn-bg); color: var(--warn-ink);
           font: .9rem system-ui, sans-serif; }
+  .diagnostics { margin-top: 20px; font-family: system-ui, sans-serif; }
+  .diagnostics summary { cursor: pointer; }
+  .block-check { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 12px; }
+  .block-check pre { white-space: pre; overflow-x: auto; font: .9rem/1.5 monospace; }
+  .block-check small { color: var(--muted); }
   footer { margin-top: 40px; color: var(--muted); font: .85rem/1.5 system-ui, sans-serif; max-width: 70ch; }
   @media (max-width: 760px) { .result.show { grid-template-columns: 1fr; } textarea { min-height: 280px; } }
 </style>
 </head>
 <body>
 <main>
-  <h1>Проза из <span>«Юности»</span></h1>
-  <p class="lead">Загрузите фото или скан страницы журнала. Сервис найдёт блоки прозы и распознает их текст.
-     Стихи, заголовки и иллюстрации пропускаются.</p>
+  <h1>Текст из <span>«Юности»</span></h1>
+  <p class="lead">Загрузите фото или скан страницы журнала. Сервис распознаёт текстовые блоки:
+     прозу, стихи, заголовки и короткие фрагменты. Строки и отступы сохраняются, жанрового отбора нет.</p>
 
   <label class="drop" id="drop">
     <strong>Перетащите файл сюда или нажмите, чтобы выбрать</strong>
@@ -75,12 +81,12 @@
     <div class="panel">
       <h2>Что нашли на странице</h2>
       <img id="overlay" alt="Страница с выделенными блоками">
-      <p class="legend"><i style="background:#3ca000"></i>проза (распознана)
-         &nbsp; <i style="background:#969696"></i>всё остальное</p>
+      <p class="legend"><i style="background:#3ca000"></i>распознанный текст
+         &nbsp; <i style="background:#969696"></i>сомнительные знаки OCR</p>
     </div>
     <div class="panel">
       <h2>Распознанный текст</h2>
-      <textarea id="text" aria-label="Распознанный текст"></textarea>
+      <textarea id="text" wrap="off" spellcheck="false" aria-label="Распознанный текст"></textarea>
       <div class="actions">
         <button class="primary" id="copy">Скопировать</button>
         <button id="download">Скачать .txt</button>
@@ -89,9 +95,16 @@
     </div>
   </section>
 
+  <details class="diagnostics" id="diagnostics" hidden>
+    <summary>Проверить текстовые блоки</summary>
+    <p>Номера совпадают с рамками на странице. Здесь можно сверить текст и координаты.
+       Уверенность OCR — внутренний показатель, а не гарантия правильности.</p>
+    <div id="block-list"></div>
+  </details>
+
   <footer>
-    Автоматическое распознавание ошибается: проверяйте текст по оригиналу. Блоки с ровным правым краем считаются
-    прозой, поэтому короткие фрагменты (меньше 8 строк) и стихи с ровными строками могут определиться неверно.
+    Автоматическое распознавание ошибается: проверяйте текст по оригиналу. Программа не различает жанры.
+    Сложная вёрстка, декоративные буквы, иллюстрации и изогнутые строки могут вызывать пропуски и ошибки.
     Загруженные файлы нигде не сохраняются.
   </footer>
 </main>
@@ -109,6 +122,7 @@ function setStatus(msg, kind) {
 async function upload(file) {
   if (!file) return;
   $('result').classList.remove('show');
+  $('diagnostics').hidden = true;
   setStatus('Распознаём страницу… это может занять до минуты', 'busy');
   const form = new FormData();
   form.append('file', file);
@@ -126,15 +140,33 @@ function show(data) {
   $('overlay').src = data.overlay;
   $('text').value = data.text;
   const note = $('note');
-  if (data.prose_blocks === 0) {
+  if (data.text_blocks === 0) {
     note.hidden = false;
-    note.textContent = 'Прозы на странице не нашли. Возможно, на ней только стихи, заголовки или иллюстрации.';
+    note.textContent = 'Текст не найден. Это не гарантирует его отсутствия: попробуйте более чёткий снимок или отдельный фрагмент.';
     setStatus('Готово', '');
   } else {
-    note.hidden = true;
-    setStatus('Найдено блоков прозы: ' + data.prose_blocks, '');
+    note.hidden = false;
+    note.textContent = 'Автоматическая выборка может быть неполной. Сверьте начало и конец каждой колонки с оригиналом; число найденных блоков не показывает полноту.';
+    setStatus('Найдено текстовых блоков: ' + data.text_blocks, '');
   }
   $('result').classList.add('show');
+  const list = $('block-list');
+  list.replaceChildren();
+  (data.all_blocks || data.blocks || []).forEach((block, i) => {
+    const item = document.createElement('div');
+    item.className = 'block-check';
+    const title = document.createElement('strong');
+    title.textContent = `Блок ${i + 1}: ${block.is_text ? 'текст' : (block.rejected || 'сомнительные знаки')}`;
+    const meta = document.createElement('small');
+    meta.textContent = `Строк OCR: ${block.lines}; уверенность: ${block.confidence ?? 'нет данных'} / 100; ` +
+      `рамка: ${block.x}, ${block.y}, ${block.w} × ${block.h}; ` +
+      (block.source === 'sparse' ? 'дополнительный поиск короткого текста' : 'разметка страницы');
+    const text = document.createElement('pre');
+    text.textContent = block.text || 'Текст не прочитан.';
+    item.append(title, document.createElement('br'), meta, text);
+    list.append(item);
+  });
+  $('diagnostics').hidden = false;
 }
 
 fileInput.addEventListener('change', () => upload(fileInput.files[0]));
@@ -151,7 +183,7 @@ $('copy').addEventListener('click', async () => {
 $('download').addEventListener('click', () => {
   const blob = new Blob([$('text').value], { type: 'text/plain;charset=utf-8' });
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'yunost-proza.txt'; a.click();
+  a.href = URL.createObjectURL(blob); a.download = 'yunost-text.txt'; a.click();
   URL.revokeObjectURL(a.href);
 });
 </script>

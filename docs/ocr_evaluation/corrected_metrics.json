@@ -1,0 +1,211 @@
+{
+  "reference_sha256": "8224a10b42e43aa7eae8a73f7314c7e11e5653f43287d6a32e39b399069ff334",
+  "note": "Re-scored saved predictions; reference typo Татарской→Тагарской. Historical result JSON files remain unchanged.",
+  "engines": {
+    "tesseract-fast": {
+      "samples": [
+        {
+          "id": "scan_prose_1",
+          "reference_chars": 221,
+          "char_errors": 1,
+          "cer": 0.004524886877828055
+        },
+        {
+          "id": "scan_prose_2",
+          "reference_chars": 252,
+          "char_errors": 2,
+          "cer": 0.007936507936507936
+        },
+        {
+          "id": "photo_prose_1",
+          "reference_chars": 548,
+          "char_errors": 22,
+          "cer": 0.040145985401459854
+        },
+        {
+          "id": "photo_prose_2",
+          "reference_chars": 504,
+          "char_errors": 19,
+          "cer": 0.037698412698412696
+        },
+        {
+          "id": "scan_verse",
+          "reference_chars": 178,
+          "char_errors": 1,
+          "cer": 0.0056179775280898875
+        },
+        {
+          "id": "photo_verse",
+          "reference_chars": 280,
+          "char_errors": 4,
+          "cer": 0.014285714285714285
+        }
+      ],
+      "weighted_cer": 0.024710035300050427
+    },
+    "tesseract-best": {
+      "samples": [
+        {
+          "id": "scan_prose_1",
+          "reference_chars": 221,
+          "char_errors": 1,
+          "cer": 0.004524886877828055
+        },
+        {
+          "id": "scan_prose_2",
+          "reference_chars": 252,
+          "char_errors": 1,
+          "cer": 0.003968253968253968
+        },
+        {
+          "id": "photo_prose_1",
+          "reference_chars": 548,
+          "char_errors": 28,
+          "cer": 0.051094890510948905
+        },
+        {
+          "id": "photo_prose_2",
+          "reference_chars": 504,
+          "char_errors": 19,
+          "cer": 0.037698412698412696
+        },
+        {
+          "id": "scan_verse",
+          "reference_chars": 178,
+          "char_errors": 2,
+          "cer": 0.011235955056179775
+        },
+        {
+          "id": "photo_verse",
+          "reference_chars": 280,
+          "char_errors": 7,
+          "cer": 0.025
+        }
+      ],
+      "weighted_cer": 0.02924861321230459
+    },
+    "easyocr": {
+      "samples": [
+        {
+          "id": "scan_prose_1",
+          "reference_chars": 221,
+          "char_errors": 20,
+          "cer": 0.09049773755656108
+        },
+        {
+          "id": "scan_prose_2",
+          "reference_chars": 252,
+          "char_errors": 15,
+          "cer": 0.05952380952380952
+        },
+        {
+          "id": "photo_prose_1",
+          "reference_chars": 548,
+          "char_errors": 131,
+          "cer": 0.23905109489051096
+        },
+        {
+          "id": "photo_prose_2",
+          "reference_chars": 504,
+          "char_errors": 206,
+          "cer": 0.4087301587301587
+        },
+        {
+          "id": "scan_verse",
+          "reference_chars": 178,
+          "char_errors": 8,
+          "cer": 0.0449438202247191
+        },
+        {
+          "id": "photo_verse",
+          "reference_chars": 280,
+          "char_errors": 25,
+          "cer": 0.08928571428571429
+        }
+      ],
+      "weighted_cer": 0.2042360060514372
+    },
+    "paddle-eslav": {
+      "samples": [
+        {
+          "id": "scan_prose_1",
+          "reference_chars": 221,
+          "char_errors": 17,
+          "cer": 0.07692307692307693
+        },
+        {
+          "id": "scan_prose_2",
+          "reference_chars": 252,
+          "char_errors": 21,
+          "cer": 0.08333333333333333
+        },
+        {
+          "id": "photo_prose_1",
+          "reference_chars": 548,
+          "char_errors": 219,
+          "cer": 0.39963503649635035
+        },
+        {
+          "id": "photo_prose_2",
+          "reference_chars": 504,
+          "char_errors": 184,
+          "cer": 0.36507936507936506
+        },
+        {
+          "id": "scan_verse",
+          "reference_chars": 178,
+          "char_errors": 6,
+          "cer": 0.033707865168539325
+        },
+        {
+          "id": "photo_verse",
+          "reference_chars": 280,
+          "char_errors": 40,
+          "cer": 0.14285714285714285
+        }
+      ],
+      "weighted_cer": 0.24558749369641958
+    },
+    "paddle-cyrillic": {
+      "samples": [
+        {
+          "id": "scan_prose_1",
+          "reference_chars": 221,
+          "char_errors": 15,
+          "cer": 0.06787330316742081
+        },
+        {
+          "id": "scan_prose_2",
+          "reference_chars": 252,
+          "char_errors": 12,
+          "cer": 0.047619047619047616
+        },
+        {
+          "id": "photo_prose_1",
+          "reference_chars": 548,
+          "char_errors": 172,
+          "cer": 0.31386861313868614
+        },
+        {
+          "id": "photo_prose_2",
+          "reference_chars": 504,
+          "char_errors": 195,
+          "cer": 0.3869047619047619
+        },
+        {
+          "id": "scan_verse",
+          "reference_chars": 178,
+          "char_errors": 4,
+          "cer": 0.02247191011235955
+        },
+        {
+          "id": "photo_verse",
+          "reference_chars": 280,
+          "char_errors": 38,
+          "cer": 0.1357142857142857
+        }
+      ],
+      "weighted_cer": 0.21986888552697934
+    }
+  }
+}

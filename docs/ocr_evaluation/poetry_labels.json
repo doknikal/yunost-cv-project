@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "purpose": "Independent visual fixtures for extracting POETRY while excluding narrative prose and editorial introductions.",
+  "provenance": {
+    "method": "Each listed full original data/norm PNG was opened and visually read individually. No OCR predictions, extracted text, contact sheets, or earlier prose labels were used to establish these labels.",
+    "transcription_scope": "Short verified anchors and selected physical lines only; not full transcriptions.",
+    "bounds": "Approximate pixel rectangles [left, top, right, bottom] in the original image coordinate system, origin top-left. Bounds are review fixtures, not pixel-exact segmentation masks.",
+    "anchor_policy": "Anchor text is visually verified. Anchor position describes position within the named verse region, not within the entire work. All anchors should survive extraction, in reading order; punctuation/spacing normalization and joining typographical word wraps may be needed for OCR comparisons.",
+    "line_policy": "Each item in a physical_line_examples.lines array is one printed physical line. indent_px is approximate horizontal displacement from the first line's left edge, not a count of literal spaces.",
+    "selection_policy": "Select verse regions. Do not select prose or page furniture. Metadata identifies the poems but is separate from verse-body completeness. Dialogue inside a verse region remains poetry. Page-edge continuations must not be treated as complete poems."
+  },
+  "pages": [
+    {
+      "image": "data/norm/1967-12_p03.png",
+      "image_size": [1545, 2000],
+      "printed_page": "4",
+      "user_image_match": {
+        "matches_described_image": true,
+        "evidence": [
+          "Three columns of staircase-indented verse.",
+          "Middle column contains section 4, РАЗГОВОР СО СЛУЧАЙНЫМ ЗНАКОМЫМ, with alternating dialogue.",
+          "Right column begins section 5, МНОГОГОЛОСАЯ ОБЫВАТЕЛЬЩИНА.",
+          "Footer names РОБЕРТ РОЖДЕСТВЕНСКИЙ and ПОЭМА О РАЗНЫХ ТОЧКАХ ЗРЕНИЯ."
+        ],
+        "scope": "Visual identity agrees with the user's description. No separate attachment was available here for a pixel-by-pixel comparison."
+      },
+      "works": [
+        {
+          "id": "rozhdestvensky_points_of_view",
+          "author": "Роберт Рождественский",
+          "title": "Поэма о разных точках зрения",
+          "page_status": "Continuation from an earlier page and onward beyond this page; neither the work's beginning nor its ending is visible.",
+          "body_reading_order": ["c1_continuation", "c2_continuation", "c2_dialogue", "c3_section5"]
+        }
+      ],
+      "regions": [
+        {
+          "id": "c1_continuation",
+          "kind": "verse",
+          "work_id": "rozhdestvensky_points_of_view",
+          "column": 1,
+          "bbox": [220, 162, 598, 1752],
+          "anchors": {
+            "beginning": ["Не знаю,", "чего они этим добились"],
+            "middle": ["Как будто мы", "чем-то обидели землю,"],
+            "end": ["Варяги,", "ау-у-у!", "Придите и правьте."]
+          },
+          "physical_line_examples": [
+            {
+              "position": "beginning",
+              "lines": [
+                {"text": "Не знаю,", "indent_px": 0},
+                {"text": "чего они этим добились", "indent_px": 85},
+                {"text": "и что потеряли,", "indent_px": 0},
+                {"text": "но я повторяю:", "indent_px": 0}
+              ]
+            },
+            {
+              "position": "end",
+              "lines": [
+                {"text": "Варяги,", "indent_px": 0},
+                {"text": "ау-у-у!", "indent_px": 0},
+                {"text": "Придите и правьте.", "indent_px": 0}
+              ]
+            }
+          ],
+          "notes": "Do not flatten staircase fragments into ordinary prose or drop the very short lines."
+        },
+        {
+          "id": "c2_continuation",
+          "kind": "verse",
+          "work_id": "rozhdestvensky_points_of_view",
+          "column": 2,
+          "bbox": [610, 162, 975, 654],
+          "anchors": {
+            "beginning": ["Мы очень понятливы.", "Необычайно проворны..."],
+            "middle": ["Шеренги", "заезжих высочеств,"],
+            "end": ["в которых — спасенье...", "Люби", "эту землю."]
+          },
+          "physical_line_examples": [
+            {
+              "position": "beginning",
+              "lines": [
+                {"text": "До-", "indent_px": 0},
+                {"text": "воль-", "indent_px": 0},
+                {"text": "но!!", "indent_px": 0},
+                {"text": "К чертям!", "indent_px": 0},
+                {"text": "Супермены!", "indent_px": 130}
+              ]
+            },
+            {
+              "position": "end",
+              "lines": [
+                {"text": "Люби", "indent_px": 0},
+                {"text": "эту землю.", "indent_px": 0}
+              ]
+            }
+          ],
+          "notes": "The printed До-/воль-/но!! staircase is three physical lines, not an OCR truncation."
+        },
+        {
+          "id": "c2_dialogue",
+          "kind": "verse",
+          "work_id": "rozhdestvensky_points_of_view",
+          "column": 2,
+          "section": "4. РАЗГОВОР СО СЛУЧАЙНЫМ ЗНАКОМЫМ",
+          "bbox": [610, 758, 982, 1753],
+          "anchors": {
+            "beginning": ["— Смотри,", "как дышит эта ночь."],
+            "middle": ["— И, ощутив побег реки,", "в беспамятстве забьется ерш!.."],
+            "end": ["и не понять снега́!..", "— Ага!.."]
+          },
+          "physical_line_examples": [
+            {
+              "position": "beginning",
+              "lines": [
+                {"text": "— Смотри,", "indent_px": 0},
+                {"text": "как дышит эта ночь.", "indent_px": 100},
+                {"text": "Звезда,", "indent_px": 0},
+                {"text": "уставшая светить,", "indent_px": 80},
+                {"text": "упала,", "indent_px": 258},
+                {"text": "обожгла плечо...", "indent_px": 165},
+                {"text": "— Чо!", "indent_px": 0}
+              ]
+            }
+          ],
+          "notes": "Alternating dialogue and one-word replies are part of the poem. They must not be classified as prose dialogue. The final снега́ has a visible stress accent; accent-insensitive matching is appropriate."
+        },
+        {
+          "id": "c3_section5",
+          "kind": "verse",
+          "work_id": "rozhdestvensky_points_of_view",
+          "column": 3,
+          "section": "5. МНОГОГОЛОСАЯ ОБЫВАТЕЛЬЩИНА",
+          "bbox": [1000, 235, 1370, 1755],
+          "anchors": {
+            "beginning": ["А куда нам —", "мыслить!"],
+            "middle": ["Млекопитающие", "и млеконапитавшиеся.", "Рядовые."],
+            "end": ["Играйте в ваши выборы,", "правительства", "и партии!", "Бунтуйте,"]
+          },
+          "physical_line_examples": [
+            {
+              "position": "beginning",
+              "lines": [
+                {"text": "А куда нам —", "indent_px": 0},
+                {"text": "мыслить!", "indent_px": 148},
+                {"text": "А чего нам —", "indent_px": 0},
+                {"text": "мыслить!", "indent_px": 148}
+              ]
+            },
+            {
+              "position": "end",
+              "lines": [
+                {"text": "Играйте в ваши выборы,", "indent_px": 0},
+                {"text": "правительства", "indent_px": 211},
+                {"text": "и партии!", "indent_px": 254},
+                {"text": "Бунтуйте,", "indent_px": 0}
+              ]
+            }
+          ],
+          "notes": "The isolated last line Бунтуйте, is verse and continues beyond this page."
+        },
+        {"id": "section4_heading", "kind": "metadata", "bbox": [625, 690, 965, 747], "text": "4. РАЗГОВОР СО СЛУЧАЙНЫМ ЗНАКОМЫМ"},
+        {"id": "section5_heading", "kind": "metadata", "bbox": [998, 178, 1330, 234], "text": "5. МНОГОГОЛОСАЯ ОБЫВАТЕЛЬЩИНА"},
+        {"id": "footer", "kind": "metadata", "bbox": [220, 1774, 1368, 1815], "text": "РОБЕРТ РОЖДЕСТВЕНСКИЙ. ПОЭМА О РАЗНЫХ ТОЧКАХ ЗРЕНИЯ. 4"}
+      ],
+      "prose_regions": [],
+      "classification_cases": ["All three body columns are poetry, despite sentence-like passages, dialogue, and unusually fragmented physical lines."]
+    },
+    {
+      "image": "data/norm/1967-10_p03.png",
+      "image_size": [1520, 2000],
+      "printed_page": "64",
+      "works": [
+        {"id": "kymytval_horizon", "author": "Кымытваль", "title": "Горизонт", "page_status": "Complete poem visible on this page.", "body_reading_order": ["horizon"]},
+        {"id": "kymytval_sadness", "author": "Кымытваль", "title": "Грусть", "page_status": "Complete poem visible on this page.", "body_reading_order": ["sadness"]}
+      ],
+      "regions": [
+        {
+          "id": "horizon",
+          "kind": "verse",
+          "work_id": "kymytval_horizon",
+          "column": 2,
+          "bbox": [855, 704, 1385, 1242],
+          "anchors": {
+            "beginning": ["Горизонт — это то, что несем сквозь года", "Мы, свободные дети суровой земли."],
+            "middle": ["Анадырь, Анадырь, мы сроднились с тобой!", "Есть на свете немало других городов."],
+            "end": ["Горизонт — это правды высокой огни!", "Горизонт — это счастье любимой земли!"]
+          },
+          "physical_line_examples": [
+            {
+              "position": "beginning",
+              "lines": [
+                {"text": "Горизонт — это то, что несем сквозь года", "indent_px": 0},
+                {"text": "Мы, свободные дети суровой земли.", "indent_px": 0},
+                {"text": "Горизонт — это то, что мы видим всегда,", "indent_px": 0},
+                {"text": "То, что близко душе,", "indent_px": 0},
+                {"text": "То, что вечно вдали.", "indent_px": 0}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sadness",
+          "kind": "verse",
+          "work_id": "kymytval_sadness",
+          "column": 2,
+          "bbox": [858, 1340, 1385, 1833],
+          "anchors": {
+            "beginning": ["Случайный солнца луч вдруг сердцу моему", "Внушил такую грусть,"],
+            "middle": ["Кому грозить хочу я?", "А ведь таежник опытный"],
+            "end": ["Чтобы случайный луч блеснул из темноты", "И снова здесь со мной вдруг оказался ты!"]
+          },
+          "physical_line_examples": [
+            {
+              "position": "beginning",
+              "lines": [
+                {"text": "Случайный солнца луч вдруг сердцу моему", "indent_px": 0},
+                {"text": "Внушил такую грусть,", "indent_px": 0},
+                {"text": "Что, как подстреленная птица,", "indent_px": 0},
+                {"text": "Оно трепещет, улететь стремится.", "indent_px": 0},
+                {"text": "А почему?", "indent_px": 0},
+                {"text": "Сама я не пойму!", "indent_px": 0}
+              ]
+            }
+          ]
+        },
+        {"id": "horizon_heading", "kind": "metadata", "bbox": [855, 650, 1040, 690], "text": "Горизонт"},
+        {"id": "sadness_heading", "kind": "metadata", "bbox": [855, 1285, 1000, 1328], "text": "Грусть"},
+        {"id": "interview_byline", "kind": "metadata", "bbox": [967, 1838, 1365, 1875], "text": "Беседу вел Владимир АФОНИН."},
+        {"id": "footer", "kind": "metadata", "bbox": [175, 1890, 1430, 1940], "text": "НОВЫЕ ПЕСНИ ОЗЯБШЕГО МЕРИДИАНА. 64"}
+      ],
+      "prose_regions": [
+        {"id": "interview_left", "kind": "prose", "bbox": [168, 151, 790, 1870], "verified_exclusion_anchors": ["Если бы Кымытваль родилась", "Вот что сказала Кымытваль:"]},
+        {"id": "interview_right_top", "kind": "prose", "bbox": [806, 151, 1430, 610], "verified_exclusion_anchors": ["Потом, улыбнувшись, она закончила:", "Она написала эти стихи.", "В переводе Леонида Завальнюка."]}
+      ],
+      "classification_cases": [
+        "Only the lower right column contains the two poems; the entire left column and upper right are prose/interview.",
+        "Quoted speech about writing poems is still introductory prose, not poetry.",
+        "A short question inside Грусть is still verse. The interviewer's byline below the final verse is not a poem line."
+      ]
+    },
+    {
+      "image": "data/norm/1957-12_p06.png",
+      "image_size": [1471, 2000],
+      "printed_page": "59",
+      "works": [
+        {"id": "oshanin_son", "author": "Лев Ошанин", "title": "Сын", "page_status": "Complete poem visible in the lower framed panel.", "body_reading_order": ["son_left", "son_right"]}
+      ],
+      "regions": [
+        {
+          "id": "son_left",
+          "kind": "verse",
+          "work_id": "oshanin_son",
+          "column": 1,
+          "bbox": [118, 1030, 655, 1828],
+          "anchors": {
+            "beginning": ["— Ты куришь?", "— Видишь ли, отец, про это"],
+            "middle": ["Он достает набор флаконов узких,", "Где сохраняют цвета чистоту"],
+            "end": ["Как он, таким же мудрым человеком", "Опять спешу в те самые края?"]
+          },
+          "physical_line_examples": [
+            {
+              "position": "beginning",
+              "lines": [
+                {"text": "— Ты куришь?", "indent_px": 0},
+                {"text": "— Видишь ли, отец, про это", "indent_px": 166},
+                {"text": "Я не писал, чтоб не тревожить мать, —", "indent_px": 0},
+                {"text": "Басит он, зажигая сигарету,", "indent_px": 0}
+              ]
+            },
+            {
+              "position": "end",
+              "lines": [
+                {"text": "И кажется —", "indent_px": 0},
+                {"text": "не скрылось четверть века.", "indent_px": 193}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "son_right",
+          "kind": "verse",
+          "work_id": "oshanin_son",
+          "column": 2,
+          "bbox": [758, 1030, 1320, 1828],
+          "anchors": {
+            "beginning": ["Как это было, помнишь? В непогоду,", "Размыв снега непуганой земли,"],
+            "middle": ["Он стал мужчиной.", "А далек ли миг,"],
+            "end": ["А я, чудак, зачем-то брови хмурю:", "— Сережка, знаешь, лучше не кури!"]
+          },
+          "physical_line_examples": [
+            {
+              "position": "middle",
+              "lines": [
+                {"text": "Он стал мужчиной.", "indent_px": 0},
+                {"text": "А далек ли миг,", "indent_px": 218},
+                {"text": "Когда с букетом черных жирных двоек", "indent_px": 0},
+                {"text": "Он в пятом классе мне совал дневник?", "indent_px": 0}
+              ]
+            }
+          ]
+        },
+        {"id": "poem_author", "kind": "metadata", "bbox": [109, 824, 333, 867], "text": "Лев ОШАНИН"},
+        {"id": "poem_heading", "kind": "metadata", "bbox": [565, 907, 900, 1005], "text": "СЫН"},
+        {"id": "page_number", "kind": "metadata", "bbox": [1328, 1863, 1371, 1900], "text": "59"}
+      ],
+      "prose_regions": [
+        {"id": "story_left", "kind": "prose", "bbox": [71, 78, 703, 764], "verified_exclusion_anchors": ["Руки танкиста обхватили санинструктора за шею,", "В медсанбате все трое лежали рядом."]},
+        {
+          "id": "story_right",
+          "kind": "prose",
+          "bbox": [730, 78, 1372, 764],
+          "verified_exclusion_anchors": [
+            "Как Игорь был благодарен ей за эти слова!",
+            "Но забудет ли?.."
+          ]
+        }
+      ],
+      "classification_cases": [
+        "The horizontal border near y=803 separates narrative prose above from the poem panel below.",
+        "Both the story and the poem contain dialogue. Dialogue punctuation alone cannot distinguish them.",
+        "The opening exchange and the short indented continuation А далек ли миг, belong to the poem."
+      ]
+    },
+    {
+      "image": "data/norm/1957-10_p05.png",
+      "image_size": [1471, 2000],
+      "printed_page": "110",
+      "works": [
+        {"id": "konstantinov_autumn", "author": "В. Константинов", "title": null, "printed_heading": "* * *", "incipit": "Сегодня осень. И дождливой стуже", "page_status": "Complete untitled poem visible in the lower framed panel.", "body_reading_order": ["autumn_left", "autumn_right"]}
+      ],
+      "regions": [
+        {
+          "id": "autumn_left",
+          "kind": "verse",
+          "work_id": "konstantinov_autumn",
+          "column": 1,
+          "bbox": [205, 1475, 737, 1833],
+          "anchors": {
+            "beginning": ["Сегодня осень. И дождливой стуже", "Дана свобода месяца на два."],
+            "middle": ["Сегодня осень. Мы с тобой студенты,", "А в мае мы уже выпускники."],
+            "end": ["И пусть тебе, поскольку ты геолог,", "Дается в руки клад в любой скале,"]
+          },
+          "physical_line_examples": [
+            {
+              "position": "beginning",
+              "lines": [
+                {"text": "Сегодня осень. И дождливой стуже", "indent_px": 0},
+                {"text": "Дана свобода месяца на два.", "indent_px": 0},
+                {"text": "Оканчивает жизнь, бросаясь в лужи,", "indent_px": 0},
+                {"text": "Безудержно нарядная листва,", "indent_px": 0}
+              ]
+            }
+          ]
+        },
+        {
+          "id": "autumn_right",
+          "kind": "verse",
+          "work_id": "konstantinov_autumn",
+          "column": 2,
+          "bbox": [765, 1475, 1280, 1833],
+          "anchors": {
+            "beginning": ["И ранит сердце каменный осколок,", "Заброшенный без дела на земле."],
+            "middle": ["Но к затяжной печали мы не склонны,", "Надолго ею не пленен никто."],
+            "end": ["За мужество, проверенное стажем", "Нелегких, но оправданных разлук."]
+          },
+          "physical_line_examples": [
+            {
+              "position": "end",
+              "lines": [
+                {"text": "Что мы кочуем не по южным пляжам", "indent_px": 0},
+                {"text": "И без кафе-закусочных услуг...", "indent_px": 0},
+                {"text": "За мужество, проверенное стажем", "indent_px": 0},
+                {"text": "Нелегких, но оправданных разлук.", "indent_px": 0}
+              ]
+            }
+          ]
+        },
+        {"id": "poem_author", "kind": "metadata", "bbox": [955, 1390, 1250, 1430], "text": "В. КОНСТАНТИНОВ"},
+        {"id": "poem_heading", "kind": "metadata", "bbox": [685, 1425, 773, 1464], "text": "* * *"},
+        {"id": "page_number", "kind": "metadata", "bbox": [90, 1880, 150, 1920], "text": "110"}
+      ],
+      "prose_regions": [
+        {"id": "story_left", "kind": "prose", "bbox": [88, 75, 510, 1328], "verified_exclusion_anchors": ["Скоро, в ночь на 8 сентября,", "Новые и новые бои."]},
+        {"id": "story_middle", "kind": "prose", "bbox": [533, 75, 953, 1328], "verified_exclusion_anchors": ["Никто еще не знал, что часа", "Он бил из автомата по фашистам,"]},
+        {"id": "story_right", "kind": "prose", "bbox": [976, 75, 1395, 1328], "verified_exclusion_anchors": ["День близился к концу,", "Летом 1945 года могилу нашли,"]}
+      ],
+      "classification_cases": [
+        "The top three columns are a prose story; the bottom framed two-column panel is poetry.",
+        "The absence of a verbal title does not make the framed panel prose: the printed heading is three asterisks.",
+        "Read the entire left verse column before the right, not alternating horizontal lines across the panel."
+      ]
+    }
+  ]
+}

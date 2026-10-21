@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "annotation_revision": 2,
+  "purpose": "Visually reviewed development/regression fixture; not held-out evaluation data.",
+  "review_date": "2026-10-20",
+  "annotation_method": "Every listed data/norm filename was opened individually as a full image with functions.read in the final audit. Earlier contact-sheet interpretations were rejected and corrected. Main-session visual corrections were independently re-opened at the exact source paths. Detector predictions are not ground truth.",
+  "coordinate_system": "Original data/norm PNG pixels, top-left origin; bounds are [x0, y0, x1, y1], approximate enclosing rectangles, not OCR segmentation boxes.",
+  "region_tolerance_px": 30,
+  "label_policy": {
+    "pureverse": "No running prose or editorial introduction. Titles, author names, dedications, page numbers, portraits and illustrations do not count as prose.",
+    "hasprose": "At least one genuine prose passage, including editorial/biographical introductions on poetry pages.",
+    "expected_max_prose_blocks": "null on positive pages: arbitrary OCR splitting/merging is not manually prescribed. Zero on pureverse pages is a strict rejection target.",
+    "regions": "Prose regions are independent visual recall targets. Verse regions are exclusion targets. Bounds include whitespace and are not exhaustive pixel masks; do not require exact box equality or assume everything outside them is verse."
+  },
+  "pages": [
+    {
+      "file": "1957-02_p04.png", "source_name": "Yunost 1957-02, normalized p04", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "mixed_prose_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [95, 85, 745, 625], "description": "Upper-left prose continuation."},
+        {"kind": "prose", "bounds": [755, 85, 1395, 625], "description": "Upper-right prose continuation and closing paragraphs."},
+        {"kind": "verse", "bounds": [180, 790, 1340, 1910], "description": "Poem beneath the author heading."}
+      ],
+      "visual_evidence": "Two justified narrative/dialogue columns end near y620. Below the horizontal rule are poems including 'Река' and 'Жизнь', with strongly stepped lines, plus a portrait."
+    },
+    {
+      "file": "1957-04_p03.png", "source_name": "Yunost 1957-04, normalized p03", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "editorial_introduction_and_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [190, 335, 1265, 880], "description": "Wide editorial introduction below the large Сергей Есенин heading."},
+        {"kind": "verse", "bounds": [80, 985, 1390, 1875], "description": "Three verse columns headed 'Речь Никанора Рассветова'."}
+      ],
+      "visual_evidence": "The wide bold prose introduction discusses Есенин and explains the publication of little-known poems. Three verse columns follow the separate title 'Речь Никанора Рассветова'. There is no portrait on this page."
+    },
+    {
+      "file": "1957-04_p05.png", "source_name": "Yunost 1957-04, normalized p05", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "mixed_prose_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [100, 1200, 750, 1890], "description": "Lower-left scholarly/editorial notes beginning 'Примечания'."},
+        {"kind": "prose", "bounds": [765, 1195, 1405, 1890], "description": "Lower-right continuation of the notes."},
+        {"kind": "verse", "bounds": [100, 150, 1400, 1145], "description": "Poems above the editorial notes, including 'Ночь'."}
+      ],
+      "visual_evidence": "Poems occupy the upper page. The two dense lower columns begin 'Примечания' and discuss publication history, the play 'Страна негодяев' and other Есенин texts: explanatory prose, not a story and not verse."
+    },
+    {
+      "file": "1957-04_p06.png", "source_name": "Yunost 1957-04, normalized p06", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "mixed_prose_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [85, 80, 720, 975], "description": "Upper-left story continuation."},
+        {"kind": "prose", "bounds": [745, 80, 1385, 975], "description": "Upper-right story continuation."},
+        {"kind": "verse", "bounds": [120, 1375, 970, 1740], "description": "Two columns of the poem 'Другу', beside a portrait."}
+      ],
+      "visual_evidence": "Dense justified narrative about Эджвуд and Евдокимов fills two upper columns. The framed lower section contains Дия Терещенко's portrait and the single poem 'Другу' in two columns."
+    },
+    {
+      "file": "1957-04_p08.png", "source_name": "Yunost 1957-04, normalized p08", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "editorial_introduction_and_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [215, 240, 1270, 560], "description": "Wide editorial introduction beneath the young Tajik poets heading."},
+        {"kind": "verse", "bounds": [175, 580, 1360, 1865], "description": "Lower poems and translation credits."}
+      ],
+      "visual_evidence": "The heading reads 'Из стихов молодых поэтов Таджикистана'. A wide paragraph introduces the poets, their education and the anniversary publication. The lower titled texts have stanzaic lineation and translation credits."
+    },
+    {
+      "file": "1957-06_p05.png", "source_name": "Yunost 1957-06, normalized p05", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "editorial_introduction_and_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [330, 600, 1365, 740], "description": "Wide bold editorial introduction below the three portraits."},
+        {"kind": "verse", "bounds": [190, 885, 1290, 1095], "description": "Two columns of И. Лапиров's poem."},
+        {"kind": "verse", "bounds": [300, 1250, 1160, 1565], "description": "Ф. Балкарова's 'Встреча'."},
+        {"kind": "verse", "bounds": [195, 1710, 1280, 1815], "description": "З. Тхагазитов's 'Гостиница'."}
+      ],
+      "visual_evidence": "Three portraits are captioned И. Лапиров, Ф. Балкарова and З. Тхагазитов. The wide paragraph directly below them explains the journal's publication of young authors and describes their education/work. The lower texts are poems with translation credits."
+    },
+    {
+      "file": "1957-07_p01.png", "source_name": "Yunost 1957-07, normalized p01", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "mixed_prose_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [100, 100, 735, 1325], "description": "Upper-left narrative column."},
+        {"kind": "prose", "bounds": [760, 100, 1400, 1325], "description": "Upper-right narrative column."},
+        {"kind": "verse", "bounds": [245, 1750, 1270, 1900], "description": "Валентин Берестов's poem 'Мир' in two short columns."}
+      ],
+      "visual_evidence": "Two long prose columns discuss an international youth festival and end around y1320. Below the ornament and author heading is the short two-column poem 'Мир'."
+    },
+    {
+      "file": "1957-07_p02.png", "source_name": "Yunost 1957-07, normalized p02", "source": "scan", "image_size": [1471, 2000],
+      "label": "pureverse", "content_type": "verse", "expected_min_prose_blocks": 0, "expected_max_prose_blocks": 0, "regions": [],
+      "visual_evidence": "The heading is 'Стихи молодых зарубежных поэтов'. The upper Romanian poem uses stepped lines; the lower Indian poem occupies two columns. Country/author headings and translation credits are not prose introductions. There is no illustration."
+    },
+    {
+      "file": "1957-07_p04.png", "source_name": "Yunost 1957-07, normalized p04", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "editorial_introduction_and_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [145, 1300, 890, 1405], "description": "Editorial explanation of the murder of Эммет Тилл above the lower poem."},
+        {"kind": "verse", "bounds": [200, 425, 650, 1085], "description": "Upper-left 'Баллада о вольнодумце'."},
+        {"kind": "verse", "bounds": [930, 475, 1235, 1085], "description": "Upper-right 'Ребенок, продающий орехи'."},
+        {"kind": "verse", "bounds": [140, 1500, 1370, 1885], "description": "Two columns of the lower poem 'Эммет Тилл'."}
+      ],
+      "visual_evidence": "Under Том Малколм's name, a short wide paragraph explains that Эммет Тилл was a fourteen-year-old American boy and that the killers were acquitted. It is prose, unlike the surrounding poems and translation credits."
+    },
+    {
+      "file": "1957-10_p04.png", "source_name": "Yunost 1957-10, normalized p04", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "mixed_prose_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [70, 140, 710, 805], "description": "Upper-left prose column."},
+        {"kind": "prose", "bounds": [735, 80, 1375, 805], "description": "Upper-right prose column."},
+        {"kind": "verse", "bounds": [65, 1045, 1365, 1870], "description": "Роберт Рождественский's 'Восемьдесят восемь' in three columns; excludes the bottom explanatory footnote."}
+      ],
+      "visual_evidence": "The top two columns are the article 'Страничка памятной тетрадки'. Below the ornament and author heading, 'Восемьдесят восемь' uses strongly stepped verse in three columns. A small explanatory footnote is not part of those verse regions."
+    },
+    {
+      "file": "1957-10_p05.png", "source_name": "Yunost 1957-10, normalized p05", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "mixed_prose_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [90, 75, 510, 1330], "description": "First of three prose columns."},
+        {"kind": "prose", "bounds": [530, 75, 955, 1330], "description": "Middle prose column."},
+        {"kind": "prose", "bounds": [975, 75, 1395, 1330], "description": "Right prose column."},
+        {"kind": "verse", "bounds": [205, 1465, 1245, 1840], "description": "Two columns of the separately headed autumn poem."}
+      ],
+      "visual_evidence": "Three justified prose columns tell the story of Юра Озол above approximately y1320. 'Сегодня осень' begins the separate lower poem; it must not be appended as prose."
+    },
+    {
+      "file": "1957-11_p02.png", "source_name": "Yunost 1957-11, normalized p02", "source": "scan", "image_size": [1471, 2000],
+      "label": "pureverse", "content_type": "verse", "expected_min_prose_blocks": 0, "expected_max_prose_blocks": 0, "regions": [],
+      "visual_evidence": "The full image has Михаил Вершинин's 'Юность Октября' and Виктор Виноградов's 'Смелость'. Both use poetic lineation, including long stepped continuations; neither is a prose introduction."
+    },
+    {
+      "file": "1957-11_p03.png", "source_name": "Yunost 1957-11, normalized p03", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "editorial_introduction_and_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [115, 590, 465, 1245], "description": "Narrow italic introduction beside the poems, signed Евгений Винокуров."},
+        {"kind": "verse", "bounds": [500, 595, 1385, 1870], "description": "Two lower poem columns."}
+      ],
+      "visual_evidence": "The page is headed Сергей Космынин. The narrow italic introduction describes his work as a photographer and amateur theatre director and ends with the signature Евгений Винокуров. It is prose beside separately titled poems."
+    },
+    {
+      "file": "1957-11_p05.png", "source_name": "Yunost 1957-11, normalized p05", "source": "scan", "image_size": [1471, 2000],
+      "label": "pureverse", "content_type": "verse", "expected_min_prose_blocks": 0, "expected_max_prose_blocks": 0, "regions": [],
+      "visual_evidence": "Виктор Боков's 'ПОЛЯНА' fills the wide upper area with long poetic lines and stepped continuations. Владимир Зуев's 'Как это прекрасно' appears below in two columns. Neither is prose."
+    },
+    {
+      "file": "1957-12_p03.png", "source_name": "Yunost 1957-12, normalized p03", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "mixed_prose_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [90, 80, 510, 1170], "description": "Upper-left prose column."},
+        {"kind": "prose", "bounds": [525, 80, 950, 1170], "description": "Upper-middle prose column."},
+        {"kind": "prose", "bounds": [965, 80, 1395, 1175], "description": "Upper-right prose column."},
+        {"kind": "verse", "bounds": [300, 1410, 810, 1815], "description": "'Перед отъездом', beside Михаил Петраков's portrait."}
+      ],
+      "visual_evidence": "Three justified narrative/dialogue columns finish around y1160. In the framed lower section, the poem 'Перед отъездом' stands beside Михаил Петраков's portrait."
+    },
+    {
+      "file": "1957-12_p06.png", "source_name": "Yunost 1957-12, normalized p06", "source": "scan", "image_size": [1471, 2000],
+      "label": "hasprose", "content_type": "mixed_prose_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [70, 75, 710, 780], "description": "Upper-left prose, including short final paragraphs."},
+        {"kind": "prose", "bounds": [730, 75, 1375, 780], "description": "Upper-right prose, including the spaced closing passage."},
+        {"kind": "verse", "bounds": [115, 1025, 1320, 1840], "description": "Two columns of Лев Ошанин's poem 'СЫН'."}
+      ],
+      "visual_evidence": "The upper prose narrative about Игорь continues through short closing paragraphs to roughly y770. A framed lower section is headed Лев Ошанин, 'СЫН', and contains verse in two columns."
+    },
+    {
+      "file": "1963-12_p07.png", "source_name": "Yunost 1963-12, normalized p07", "source": "photo", "image_size": [1500, 2000],
+      "label": "hasprose", "content_type": "mixed_prose_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [230, 140, 840, 905], "description": "Upper-left photographed prose column."},
+        {"kind": "prose", "bounds": [840, 135, 1440, 910], "description": "Upper-right photographed prose column."},
+        {"kind": "verse", "bounds": [550, 1075, 1405, 1230], "description": "'К. И. Чуковскому', in two short columns beside the portrait."},
+        {"kind": "verse", "bounds": [525, 1420, 1405, 1695], "description": "'Бродячий кот', in two lower columns."}
+      ],
+      "visual_evidence": "The upper two columns are narrative/dialogue about archaeologists and a discovered stone; they end around y900. Below are В. Берестов's poems 'К. И. Чуковскому' and 'Бродячий кот'. Photograph distortion does not change the prose/verse division."
+    },
+    {
+      "file": "1965-01_p01.png", "source_name": "Yunost 1965-01, normalized p01", "source": "photo", "image_size": [1500, 2000],
+      "label": "pureverse", "content_type": "verse_and_portrait", "expected_min_prose_blocks": 0, "expected_max_prose_blocks": 0, "regions": [],
+      "visual_evidence": "The portrait heading is Фазиль Искандер. Poems include 'Поэты', 'Стога', and 'Размышления об эссе'. The upper-right 'Стога' is stanzaic verse, including stepped continuations, not an editorial introduction."
+    },
+    {
+      "file": "1965-01_p04.png", "source_name": "Yunost 1965-01, normalized p04", "source": "photo", "image_size": [1500, 2000],
+      "label": "pureverse", "content_type": "verse", "expected_min_prose_blocks": 0, "expected_max_prose_blocks": 0, "regions": [],
+      "visual_evidence": "Two ruled columns contain stanzaic poetry, including 'Баллада об украденном козле' on the right. Dialogue and staggered continuation lines remain verse; no editorial prose introduction."
+    },
+    {
+      "file": "1965-01_p05.png", "source_name": "Yunost 1965-01, normalized p05", "source": "photo", "image_size": [1500, 2000],
+      "label": "pureverse", "content_type": "verse", "expected_min_prose_blocks": 0, "expected_max_prose_blocks": 0, "regions": [],
+      "visual_evidence": "The ballad continues in two framed columns, followed by 'Летний лес'. Stanzas, rhyme and strongly stepped lines are visible throughout; the dense top-right block is not prose."
+    },
+    {
+      "file": "1965-02_p01.png", "source_name": "Yunost 1965-02, normalized p01", "source": "photo", "image_size": [1500, 2000],
+      "label": "pureverse", "content_type": "verse_and_portrait", "expected_min_prose_blocks": 0, "expected_max_prose_blocks": 0, "regions": [],
+      "visual_evidence": "Борис Слуцкий portrait plus 'Мой комбат Назаров', 'Казахи под Можайском' and 'Духовые оркестры'. The lower-right orchestra poem includes conspicuously indented short lines, still verse. No prose introduction."
+    },
+    {
+      "file": "1965-02_p08.png", "source_name": "Yunost 1965-02, normalized p08", "source": "photo", "image_size": [1500, 2000],
+      "label": "hasprose", "content_type": "editorial_introduction_and_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [245, 625, 710, 1085], "description": "Biographical prose below the portrait of Стефан Цанев."},
+        {"kind": "verse", "bounds": [925, 195, 1410, 1090], "description": "Upper-right poem 'Габровские счетоводы'."},
+        {"kind": "verse", "bounds": [245, 1210, 1430, 1900], "description": "Lower poem columns."}
+      ],
+      "visual_evidence": "The paragraph under Стефан Цанев's portrait begins 'Молодой болгарский поэт', discusses his education and poetry collections, and is continuous prose. Poems occupy the other columns. A brief explanatory footnote is also visible at lower right."
+    },
+    {
+      "file": "1965-02_p09.png", "source_name": "Yunost 1965-02, normalized p09", "source": "photo", "image_size": [1500, 2000],
+      "label": "pureverse", "content_type": "verse", "expected_min_prose_blocks": 0, "expected_max_prose_blocks": 0, "regions": [],
+      "visual_evidence": "Two framed columns contain the continuation of a stepped poem and 'Баллада об автопортрете'. The ballad continues at the top of the right column. Deliberate line breaks and indentations persist throughout; there is no prose introduction."
+    },
+    {
+      "file": "1965-02_p10.png", "source_name": "Yunost 1965-02, normalized p10", "source": "photo", "image_size": [1500, 2000],
+      "label": "hasprose", "content_type": "editorial_introduction_and_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [380, 175, 1310, 360], "description": "Wide introduction beneath 'Так сказали мудрецы', above the Наум Гребнев signature."},
+        {"kind": "verse", "bounds": [275, 430, 760, 1725], "description": "Left framed column of short versified proverbs."},
+        {"kind": "verse", "bounds": [925, 445, 1385, 1735], "description": "Right framed column of short versified proverbs."}
+      ],
+      "visual_evidence": "The title is 'Так сказали мудрецы'. A wide top paragraph explains the translation of Kabardian proverbs into Russian verse and is signed Наум Гребнев. Below are two framed columns of short versified aphorisms. There is no lower-left editorial request."
+    },
+    {
+      "file": "1967-09_p04.png", "source_name": "Yunost 1967-09, normalized p04", "source": "scan", "image_size": [1545, 2000],
+      "label": "hasprose", "content_type": "mixed_prose_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [170, 200, 740, 885], "description": "Upper-left narrative column."},
+        {"kind": "prose", "bounds": [745, 205, 1325, 890], "description": "Upper-right narrative, including separated final passage."},
+        {"kind": "verse", "bounds": [835, 970, 1310, 1800], "description": "Right-side verse column, continuing the first poem and then a second poem."},
+        {"kind": "verse", "bounds": [220, 1580, 660, 1785], "description": "Opening lines of the first poem, below the portrait and author heading."}
+      ],
+      "visual_evidence": "The upper two columns are narrative prose with a spaced passage on the right. Below the heavy rule are Нина Королева's portrait and verse: the first poem begins at bottom left and continues at upper right; a second poem follows in the right column."
+    },
+    {
+      "file": "1967-10_p03.png", "source_name": "Yunost 1967-10, normalized p03", "source": "scan", "image_size": [1520, 2000],
+      "label": "hasprose", "content_type": "mixed_prose_verse", "expected_min_prose_blocks": 1, "expected_max_prose_blocks": null,
+      "regions": [
+        {"kind": "prose", "bounds": [170, 150, 790, 1865], "description": "Entire left narrative/interview column, including all quoted speech."},
+        {"kind": "prose", "bounds": [805, 150, 1460, 610], "description": "Upper-right continuation of the interview; independent recall target."},
+        {"kind": "verse", "bounds": [855, 705, 1435, 1245], "description": "Right-side poem 'Горизонт'."},
+        {"kind": "verse", "bounds": [855, 1340, 1445, 1835], "description": "Right-side poem 'Грусть', above the interviewer credit."}
+      ],
+      "visual_evidence": "A prose interview about Кымытваль occupies the entire left column and upper right. The left-side quoted speech is prose, not an inset poem. The separately titled 'Горизонт' and 'Грусть' on the right have explicit poetic lineation."
+    }
+  ]
+}
