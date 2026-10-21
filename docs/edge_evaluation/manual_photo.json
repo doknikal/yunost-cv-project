@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "source": "data/norm/1963-12_p02.png",
+  "source_sha256": "bb864de8ec22728c4c22e8be8421545f108e90e5e14dced033f25efb59b6055d",
+  "image_size": [1500, 2000],
+  "split": "held_out",
+  "used_for_tuning": false,
+  "region": "Left column of Мой друг, from Вот он бредет through этот стих!; all 19 consecutive physical printed lines, excluding the heading.",
+  "bbox": [145, 785, 610, 1290],
+  "coordinate_system": {
+    "origin": "top-left of the original source image",
+    "units": "pixels",
+    "bbox_format": "[x_min, y_min, x_max, y_max]",
+    "bounds": "Inclusive approximate text-ink bounds; no deskewing or coordinate rotation.",
+    "x_right": "Rightmost printed text ink, including terminal punctuation and excluding unrelated speckle or illustration.",
+    "y_center": "Midpoint of y_top and y_bottom for the complete physical line, not a baseline. Bounds span the tilted line and can overlap those of a neighboring line.",
+    "x_left": "Approximate leftmost printed text ink; indented continuations remain separate physical lines."
+  },
+  "uncertainty_px": {
+    "x_left": 5,
+    "x_right": 5,
+    "y_top": 5,
+    "y_bottom": 5,
+    "y_center": 5
+  },
+  "provenance": {
+    "annotator": "gpt-6.1-sol, model visual annotation",
+    "independent_human_gold": false,
+    "method": "Visually opened the original image, an enlarged ungridded crop, a coordinate-grid crop, and more detailed coordinate-grid crops. Manually read coordinates against the grids. No OCR, automated connected components, edge extraction, or target endpoint algorithm was used to obtain these annotations.",
+    "display_transforms": "Rectangular crops and 2x, 3x, or 4x enlargement for viewing only; all saved annotation coordinates are in the original 1500x2000 image.",
+    "selection": "One readable photographic text column, selected before any endpoint algorithm results were inspected; reserved as held-out data and not used for tuning.",
+    "caveats": [
+      "These are model-generated visual estimates, not independent human gold or subpixel measurements.",
+      "Photographic blur, faint punctuation, paper texture, and line tilt justify approximately plus or minus 5 pixels of uncertainty.",
+      "The manually read text is an identification aid, not an OCR accuracy reference. Blank stanza gaps are not lines; short indented continuations and terminal punctuation are retained."
+    ]
+  },
+  "lines": [
+    {"id": 1, "text": "Вот он бредет, совсем больной,", "x_left": 164, "x_right": 528, "y_top": 795, "y_bottom": 821, "y_center": 808},
+    {"id": 2, "text": "неловкий,", "x_left": 469, "x_right": 574, "y_top": 825, "y_bottom": 845, "y_center": 835},
+    {"id": 3, "text": "Ступает в лужи и не видит их,", "x_left": 164, "x_right": 527, "y_top": 844, "y_bottom": 869, "y_center": 856.5},
+    {"id": 4, "text": "В шинельке, подпоясанной веревкой,", "x_left": 163, "x_right": 596, "y_top": 868, "y_bottom": 895, "y_center": 881.5},
+    {"id": 5, "text": "В насквозь промокших валенках", "x_left": 163, "x_right": 549, "y_top": 892, "y_bottom": 919, "y_center": 905.5},
+    {"id": 6, "text": "чужих.", "x_left": 522, "x_right": 598, "y_top": 926, "y_bottom": 944, "y_center": 935},
+    {"id": 7, "text": "— Где будешь спать?", "x_left": 161, "x_right": 425, "y_top": 942, "y_bottom": 965, "y_center": 953.5},
+    {"id": 8, "text": "— Да на вокзале где-то...", "x_left": 160, "x_right": 467, "y_top": 966, "y_bottom": 989, "y_center": 977.5},
+    {"id": 9, "text": "Прописки нет, и денег тоже нет.", "x_left": 160, "x_right": 548, "y_top": 1017, "y_bottom": 1042, "y_center": 1029.5},
+    {"id": 10, "text": "Но парня как-то не тревожит это:", "x_left": 159, "x_right": 561, "y_top": 1042, "y_bottom": 1066, "y_center": 1054},
+    {"id": 11, "text": "Плевал он на прописку, он — поэт!", "x_left": 158, "x_right": 570, "y_top": 1066, "y_bottom": 1091, "y_center": 1078.5},
+    {"id": 12, "text": "Его России волновали беды,", "x_left": 158, "x_right": 499, "y_top": 1090, "y_bottom": 1113, "y_center": 1101.5},
+    {"id": 13, "text": "И, на ходу глотая акрихин,", "x_left": 157, "x_right": 488, "y_top": 1116, "y_bottom": 1139, "y_center": 1127.5},
+    {"id": 14, "text": "Держась за бок, в поту, от боли", "x_left": 155, "x_right": 549, "y_top": 1138, "y_bottom": 1166, "y_center": 1152},
+    {"id": 15, "text": "белый,", "x_left": 499, "x_right": 570, "y_top": 1163, "y_bottom": 1183, "y_center": 1173},
+    {"id": 16, "text": "Он бормотал «крамольные» стихи.", "x_left": 155, "x_right": 558, "y_top": 1191, "y_bottom": 1216, "y_center": 1203.5},
+    {"id": 17, "text": "О том, что Правда победит, писал он,", "x_left": 155, "x_right": 594, "y_top": 1213, "y_bottom": 1238, "y_center": 1225.5},
+    {"id": 18, "text": "Партийным был «крамольный»", "x_left": 154, "x_right": 521, "y_top": 1235, "y_bottom": 1265, "y_center": 1250},
+    {"id": 19, "text": "этот стих!", "x_left": 455, "x_right": 570, "y_top": 1259, "y_bottom": 1280, "y_center": 1269.5}
+  ]
+}

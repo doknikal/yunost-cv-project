@@ -1,0 +1,42 @@
+{
+  "comparison": "Serialized JSON objects, not Python tuple/list type comparison",
+  "old_response_sha256": "59b21226eddd910ef2cae6aaba631b9583645abda343f2474038eabc19a9f89a",
+  "new_response_sha256": "f9900adcbc1138e87977e032bbf6e0f3f0a6de06b815f1823998f172d669cdb2",
+  "all_old_fields_exact_equal": true,
+  "differing_fields": [],
+  "added_fields": [
+    "edge_analysis",
+    "first_block"
+  ],
+  "accepted_blocks": 14,
+  "characters": 3547,
+  "ocr_physical_lines": 209,
+  "historical_assets": {
+    "data/features.csv": {
+      "sha256": "450b7d0f934bd9677e0a3c91b7ec8e7f0aaa54c96dd4e524e423230be4e5cfe2",
+      "expected": "450b7d0f934bd9677e0a3c91b7ec8e7f0aaa54c96dd4e524e423230be4e5cfe2",
+      "unchanged": true
+    },
+    "data/manifest.csv": {
+      "sha256": "3601852617c38e680fb86de59251ab4dada1cb12707f1fee8991ae816153e360",
+      "expected": "3601852617c38e680fb86de59251ab4dada1cb12707f1fee8991ae816153e360",
+      "unchanged": true
+    },
+    "Yunost_CV_project.ipynb": {
+      "sha256": "4c8922dae3febfa20c2d01e2f9814c64b67c9e0d46fe8476237d266d241e3756",
+      "expected": "4c8922dae3febfa20c2d01e2f9814c64b67c9e0d46fe8476237d266d241e3756",
+      "unchanged": true
+    },
+    "dist/Yunost-OCR-1.2.0.zip": {
+      "sha256": "738d995f64641684514e45cd841dacb91c9a95affb5b329c0fe40aad04fb4882",
+      "expected": "738d995f64641684514e45cd841dacb91c9a95affb5b329c0fe40aad04fb4882",
+      "unchanged": true
+    },
+    "dist/Yunost-OCR-1.1.0.zip": {
+      "sha256": "06c4d43977bdb202ec0de33d2b9e0cb658f7e36e5182cf730857118d348ff70b",
+      "expected": "06c4d43977bdb202ec0de33d2b9e0cb658f7e36e5182cf730857118d348ff70b",
+      "unchanged": true
+    }
+  },
+  "earlier_scratch_report_caveat": "ocr-preservation-v2.json incorrectly marks 925 Python tuple vs JSON list comparisons as changes. Every canonical JSON field hash there is equal; this report compares the actual saved JSON. The original report is preserved, not overwritten."
+}

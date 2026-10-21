@@ -6,7 +6,7 @@ import zipfile
 
 from setup_app import HERE, ensure_weights, verify_weights, WEIGHTS_SHA256
 
-VERSION = '1.2.0'
+VERSION = '1.3.0'
 
 
 def build():
@@ -14,7 +14,7 @@ def build():
     verify_weights(model_folder / 'rus.traineddata')
     paths = [HERE / name for name in ['server.py', 'cvpipe.py', 'setup_app.py', 'run_app.py',
              'requirements-app.txt', 'install_mac.command', 'start_mac.command', 'START_HERE.md',
-             'import_corpus.py', 'COURSEWORK.md', 'COURSEWORK_CHECK.md']]
+             'import_corpus.py', 'COURSEWORK.md', 'COURSEWORK_CHECK.md', 'EDGE_METHOD.md']]
     paths += sorted((HERE / 'yunost').glob('*.py'))
     paths += sorted(path for path in (HERE / 'static').rglob('*') if path.is_file()
                     and path.suffix in {'.html', '.css', '.js', '.md'})

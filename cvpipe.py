@@ -5,7 +5,7 @@ cvpipe.py — функции компьютерного зрения для ан
   1) переводим страницу в чёрно-белую «маску чернил» (где текст/картинки);
   2) находим рамку текста, отделяем крупные иллюстрации;
   3) по форме текста считаем простые признаки вёрстки: плотность, число
-     колонок, «рваность» правого края (так выглядит стих) и т.п.
+      колонок, вариативность правого края и т.п. Геометрия не определяет жанр.
 
 Каждая функция делает один маленький шаг. extract_features() собирает их вместе
 и возвращает словарь признаков по одной странице.
@@ -151,11 +151,29 @@ def count_text_lines(text_mask, col_span, y0, y1):
     return int(len(peaks))
 
 
-def right_edge_raggedness(text_mask, col_span, y0, y1):
-    """«Рваность» правого края — главный признак стиха. У прозы правый край
-    ровный, у стиха (особенно «лесенки») — рваный. Меряем так: для каждой
-    строки находим самый правый чернильный пиксель и считаем разброс (std)
-    этих правых краёв. Больше разброс — «стиховее»."""
+def analyze_right_edge(text_mask, col_span, y0, y1, *, deskew=True):
+    """Новый анализ одной колонки: строки, края, локальный наклон и диагностика.
+
+    Короткие строки не отсеиваются по доле от самой длинной; одиночная пылинка
+    не становится краем. Не используется для отбора текста по жанру.
+    """
+    from yunost.edges import measure_edges
+    return measure_edges(text_mask, col_span, y0, y1, deskew=deskew)
+
+
+def right_edge_raggedness(text_mask, col_span, y0, y1, *, method='legacy'):
+    """std правых краёв / ширина колонки (не вероятность и не классификация).
+
+    ``components-v2`` — новый компонентный анализ с локальным выравниванием.
+    ``legacy`` — замороженная проекционная формула исходного исследования;
+    оставлена по умолчанию для воспроизводимости ноутбука и старых CSV.
+    Диагностические линии нового метода доступны через analyze_right_edge().
+    """
+    if method == 'components-v2':
+        value = analyze_right_edge(text_mask, col_span, y0, y1)['value']
+        return float('nan') if value is None else value
+    if method != 'legacy':
+        raise ValueError('Метод края: legacy или components-v2')
     x0, x1 = col_span
     region = text_mask[y0:y1, x0:x1]
     if region.size == 0:
@@ -188,8 +206,12 @@ def right_edge_raggedness(text_mask, col_span, y0, y1):
     return float(np.std(edges))
 
 
-def extract_features(path):
-    """Главная функция: по пути к картинке возвращает словарь признаков вёрстки."""
+def extract_features(path, *, raggedness_method='legacy'):
+    """Признаки страницы; новый край включается явно, старые результаты не смешиваются.
+
+    Только raggedness зависит от raggedness_method. Поиск колонок/иллюстраций —
+    исторический; для сложной страницы надёжнее измерять отдельные текстовые блоки.
+    """
     gray = load_gray(path)
     H, W = gray.shape
     page_area = H * W
@@ -212,7 +234,7 @@ def extract_features(path):
     spans = cols if cols else [(x0, x1)]
     raggedness_values, line_counts = [], []
     for span in spans:
-        rag = right_edge_raggedness(text_mask, span, y0, y1)
+        rag = right_edge_raggedness(text_mask, span, y0, y1, method=raggedness_method)
         if not np.isnan(rag):
             raggedness_values.append(rag)
         line_counts.append(count_text_lines(text_mask, span, y0, y1))

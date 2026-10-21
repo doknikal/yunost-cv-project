@@ -1,0 +1,292 @@
+{
+  "note": "Exact rectangular synthetic glyphs, half-open endpoints. No real labels used.",
+  "cases": [
+    {
+      "case": "varied_clean",
+      "true_rights": [
+        350,
+        140,
+        320,
+        60,
+        275,
+        110,
+        330,
+        80
+      ],
+      "expected": 0.28586064540917483,
+      "legacy": 0.23611621726504847,
+      "improved": {
+        "method": "components-v2",
+        "value": 0.28586064540917483,
+        "lines": [
+          {
+            "box": [
+              20,
+              15,
+              350,
+              27
+            ],
+            "right": 350.0,
+            "center_y": 21.0,
+            "aligned_right": 350,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              45,
+              140,
+              57
+            ],
+            "right": 140.0,
+            "center_y": 51.0,
+            "aligned_right": 140,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              75,
+              320,
+              87
+            ],
+            "right": 320.0,
+            "center_y": 81.0,
+            "aligned_right": 320,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              105,
+              60,
+              117
+            ],
+            "right": 60.0,
+            "center_y": 111.0,
+            "aligned_right": 60,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              135,
+              275,
+              147
+            ],
+            "right": 275.0,
+            "center_y": 141.0,
+            "aligned_right": 275,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              165,
+              110,
+              177
+            ],
+            "right": 110.0,
+            "center_y": 171.0,
+            "aligned_right": 110,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              195,
+              330,
+              207
+            ],
+            "right": 330.0,
+            "center_y": 201.0,
+            "aligned_right": 330,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              225,
+              80,
+              237
+            ],
+            "right": 80.0,
+            "center_y": 231.0,
+            "aligned_right": 80,
+            "aligned_left": 20,
+            "clipped": false
+          }
+        ],
+        "line_count": 8,
+        "correction_angle": 0.0,
+        "character_height": 12.0,
+        "bbox": [
+          0,
+          0,
+          400,
+          270
+        ],
+        "normalization": "provided_region_width",
+        "normalization_width": 400,
+        "geometry": "local_rotation_only",
+        "clipped_lines": 0,
+        "central_spread": 0.655,
+        "left_dispersion": 0.0,
+        "warnings": []
+      }
+    },
+    {
+      "case": "varied_with_distant_speckles",
+      "true_rights": [
+        350,
+        140,
+        320,
+        60,
+        275,
+        110,
+        330,
+        80
+      ],
+      "expected": 0.28586064540917483,
+      "legacy": 0.0,
+      "improved": {
+        "method": "components-v2",
+        "value": 0.28586064540917483,
+        "lines": [
+          {
+            "box": [
+              20,
+              15,
+              350,
+              27
+            ],
+            "right": 350.0,
+            "center_y": 21.0,
+            "aligned_right": 350,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              45,
+              140,
+              57
+            ],
+            "right": 140.0,
+            "center_y": 51.0,
+            "aligned_right": 140,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              75,
+              320,
+              87
+            ],
+            "right": 320.0,
+            "center_y": 81.0,
+            "aligned_right": 320,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              105,
+              60,
+              117
+            ],
+            "right": 60.0,
+            "center_y": 111.0,
+            "aligned_right": 60,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              135,
+              275,
+              147
+            ],
+            "right": 275.0,
+            "center_y": 141.0,
+            "aligned_right": 275,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              165,
+              110,
+              177
+            ],
+            "right": 110.0,
+            "center_y": 171.0,
+            "aligned_right": 110,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              195,
+              330,
+              207
+            ],
+            "right": 330.0,
+            "center_y": 201.0,
+            "aligned_right": 330,
+            "aligned_left": 20,
+            "clipped": false
+          },
+          {
+            "box": [
+              20,
+              225,
+              80,
+              237
+            ],
+            "right": 80.0,
+            "center_y": 231.0,
+            "aligned_right": 80,
+            "aligned_left": 20,
+            "clipped": false
+          }
+        ],
+        "line_count": 8,
+        "correction_angle": 0.0,
+        "character_height": 12.0,
+        "bbox": [
+          0,
+          0,
+          400,
+          270
+        ],
+        "normalization": "provided_region_width",
+        "normalization_width": 400,
+        "geometry": "local_rotation_only",
+        "clipped_lines": 0,
+        "central_spread": 0.655,
+        "left_dispersion": 0.0,
+        "warnings": []
+      }
+    }
+  ],
+  "code_sha256": {
+    "cvpipe.py": "c0c36934fdebc789405fb0a71269267366d4da31089a1d7d13f136eeaf1643cc",
+    "yunost/edges.py": "988ce28165f87ff847dd5af166787681fff3554c41bd0cbc05e326e9857101af",
+    "yunost/preprocessing.py": "6e13049d3d78409a78a7eafc91900dcfd53037c695b9357726eceec0d8c97453"
+  }
+}

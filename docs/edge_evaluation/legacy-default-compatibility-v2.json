@@ -1,0 +1,11 @@
+{
+  "pages": 111,
+  "fields_per_page": 9,
+  "all_values_identical": true,
+  "differences": [],
+  "comparison": "Frozen HEAD:cvpipe.py executed side-by-side against unchanged default call; NaN equals NaN for this comparison only.",
+  "old_code_sha256": "f40f9b0d39fe0dee9aa9711086c3d6bd854e80fb29f7d62d3e60299c6009faae",
+  "new_code_sha256": "c0c36934fdebc789405fb0a71269267366d4da31089a1d7d13f136eeaf1643cc",
+  "seconds": 40.41,
+  "historical_csv_written": false
+}
