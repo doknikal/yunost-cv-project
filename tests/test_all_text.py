@@ -93,6 +93,7 @@ def test_user_staircase_page_all_columns_titles_short_lines_and_footer(all_text_
     indented = next(line for line in result.text.splitlines() if 'чего они этим добились' in line)
     assert indented.startswith(' ')
     assert text.count('чего они этим добились') == 1
+    assert 'и млеконапитавшиеся.' in text
     # No detected body block is allowed to join adjacent columns.
     assert all(b.box[2] < 450 for b in result.text_blocks if b.box[1] < 1760)
 
@@ -103,7 +104,7 @@ def test_user_staircase_page_all_columns_titles_short_lines_and_footer(all_text_
                          'Как это было, помнишь', 'лучше не кури']),
     ('1967-10_p03.png', ['Если бы Кымытваль родилась', 'Вот что сказала Кымытваль',
                          'Она написала эти стихи', 'Горизонт', 'Случайный солнца луч',
-                         'Беседу вел Владимир']),
+                          'Беседу вел Владимир', 'Горизонт — это правды высокой огни!']),
     ('1957-10_p05.png', ['Чуфистов', 'День близился к концу', 'Сегодня осень',
                          'И ранит сердце', 'За мужество']),
 ])

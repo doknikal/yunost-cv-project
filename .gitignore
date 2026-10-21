@@ -4,3 +4,8 @@ __pycache__/
 .DS_Store
 output_1962-12/
 .ipynb_checkpoints/
+.venv-app/
+dist/
+tessdata/*.traineddata
+data/*.sqlite3
+data/*.sqlite3-*

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Двойной клик настроит окружение для ноутбука на Homebrew-Python (/opt/homebrew/bin/python3).
-# Пересоздаёт .venv на этом интерпретаторе, ставит библиотеки, регистрирует ядро Jupyter
+# Использует .venv на этом интерпретаторе, ставит библиотеки, регистрирует ядро Jupyter
 # и регенерирует data/norm из соседней папки ../1967-12.
 set -e
 cd "$(dirname "$0")"
@@ -12,9 +12,12 @@ if [ ! -x "$PY" ]; then
 fi
 echo "==> Интерпретатор: $PY ($($PY --version 2>&1))"
 
-# деактивировать и пересоздать .venv именно на Homebrew-Python
+# Не удаляем существующее окружение и пользовательские веса/результаты.
 deactivate 2>/dev/null || true
-if [ -d ".venv" ]; then echo "==> Удаляю старый .venv ..."; rm -rf .venv; fi
+if [ -e ".venv" ]; then
+  echo "!! .venv уже существует. Ничего не удалено. Для приложения используйте install_mac.command."
+  exit 1
+fi
 echo "==> Создаю .venv на Homebrew-Python ..."
 "$PY" -m venv .venv
 source .venv/bin/activate

@@ -9,13 +9,22 @@ import base64
 import logging
 import os
 import shutil
+import sqlite3
 import subprocess
+import threading
+from typing import Literal
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
+from starlette.datastructures import Headers
+from starlette.formparsers import MultiPartException
+from starlette.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from yunost import TextExtractor, UnreadableImage
+from yunost.ocr import OCRTimeout
+from yunost.analytics import AnalyticsService, Metric
+from yunost.storage import CorpusFilter, CorpusRepository, default_database
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
@@ -25,10 +34,57 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 app = FastAPI(title="Юность: текст со страницы журнала",
               description="Сервис распознаёт блоки текста без отбора по жанру: прозу, стихи, "
                           "заголовки и короткие фрагменты. Сохраняет строки и отступы. "
-                          "Файлы нигде не сохраняются.")
+                          "Загрузки удаляются после обработки.")
 app.mount("/static", StaticFiles(directory=os.path.join(HERE, "static")), name="static")
 
 _extractor = None
+_ocr_slot = threading.BoundedSemaphore(1)
+_analytics = None
+_analytics_lock = threading.Lock()
+
+
+class UploadSizeLimit:
+    """Bound multipart bodies, including chunked uploads, before parsing to disk."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope['type'] != 'http' or scope['path'] != '/api/ocr':
+            return await self.app(scope, receive, send)
+        limit = MAX_UPLOAD + 64 * 1024  # multipart headers/boundary overhead
+        length = Headers(scope=scope).get('content-length')
+        if length is not None:
+            try:
+                size = int(length)
+                if size < 0:
+                    raise ValueError
+            except ValueError:
+                return await JSONResponse({'detail': 'Некорректный размер запроса'}, 400)(scope, receive, send)
+            if size > limit:
+                return await JSONResponse({'detail': 'Файл больше 25 МБ'}, 413)(scope, receive, send)
+        received, exceeded = 0, False
+
+        async def bounded_receive():
+            nonlocal received, exceeded
+            message = await receive()
+            if message['type'] == 'http.request':
+                received += len(message.get('body', b''))
+                if received > limit:
+                    exceeded = True
+                    # MultipartParser closes its temporary files on this exception.
+                    raise MultiPartException('Файл больше 25 МБ')
+            return message
+
+        async def bounded_send(message):
+            if exceeded and message['type'] == 'http.response.start':
+                message = dict(message, status=413)
+            await send(message)
+
+        await self.app(scope, bounded_receive, bounded_send)
+
+
+app.add_middleware(UploadSizeLimit)
 
 
 def get_extractor():
@@ -44,7 +100,62 @@ def landing():
     return FileResponse(os.path.join(HERE, "static", "index.html"))
 
 
+def get_analytics():
+    """Lazy import only for an empty research DB; uploads are never persisted."""
+    global _analytics
+    with _analytics_lock:
+        if _analytics is None:
+            try:
+                repository = CorpusRepository(default_database())
+                repository.ensure_seeded(os.path.join(HERE, 'data/manifest.csv'),
+                                         os.path.join(HERE, 'data/features.csv'))
+                _analytics = AnalyticsService(repository)
+            except (OSError, sqlite3.Error, ValueError, KeyError) as exc:
+                logging.exception('Research corpus database unavailable')
+                raise HTTPException(503, 'Не удалось открыть базу корпуса. Проверьте права на папку data '
+                                    'и выполните import_corpus.py.') from exc
+    return _analytics
+
+
+def corpus_filters(year_min: int = Query(1800, ge=1800, le=2200),
+                   year_max: int = Query(2200, ge=1800, le=2200),
+                   source: Literal['all', 'scan', 'photo'] = 'all'):
+    try:
+        return CorpusFilter(year_min, year_max, source)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@app.get('/analytics', include_in_schema=False)
+def analytics_page():
+    return FileResponse(os.path.join(HERE, 'static/analytics.html'))
+
+
+@app.get('/api/analytics/options')
+def analytics_options():
+    return get_analytics().options()
+
+
+@app.get('/api/analytics/histogram')
+def analytics_histogram(metric: Metric = 'raggedness', bins: int = Query(12, ge=2, le=60),
+                        selection: CorpusFilter = Depends(corpus_filters)):
+    return get_analytics().histogram(metric, bins, selection)
+
+
+@app.get('/api/analytics/trend')
+def analytics_trend(metric: Metric = 'raggedness', aggregation: Literal['mean', 'median'] = 'median',
+                    selection: CorpusFilter = Depends(corpus_filters)):
+    return get_analytics().trend(metric, aggregation, selection)
+
+
+@app.get('/api/analytics/scatter')
+def analytics_scatter(x_metric: Metric = 'n_columns', y_metric: Metric = 'raggedness',
+                      selection: CorpusFilter = Depends(corpus_filters)):
+    return get_analytics().scatter(x_metric, y_metric, selection)
+
+
 @app.get("/api/health")
+@app.get("/health", include_in_schema=False)
 def health():
     """Проверка, что Tesseract и русский язык установлены."""
     tesseract = shutil.which("tesseract")
@@ -69,21 +180,32 @@ def recognize(file: UploadFile = File(..., description="Фото или скан
         raise HTTPException(413, "Файл больше 25 МБ")
     if not data:
         raise HTTPException(400, "Файл пустой")
+    if not _ocr_slot.acquire(blocking=False):
+        raise HTTPException(429, "Другая страница ещё распознаётся. Повторите через несколько секунд.",
+                            headers={'Retry-After': '3'})
     try:
         result = get_extractor().extract(data)
+        return page_response(result)
     except UnreadableImage as exc:
         raise HTTPException(400, str(exc))
+    except OCRTimeout as exc:
+        raise HTTPException(504, "Распознавание заняло слишком много времени. Попробуйте более чёткий скан.") from exc
     except Exception as exc:                       # Tesseract не установлен, сбой OCR и т.п.
         logging.exception("OCR failed")
         raise HTTPException(500, "Не удалось распознать страницу. Проверьте, что установлен "
-                                 "Tesseract с русским языком.") from exc
+                                  "Tesseract с русским языком.") from exc
+    finally:
+        _ocr_slot.release()
 
+
+def page_response(result):
     overlay = base64.b64encode(result.overlay_png()).decode("ascii")
     return {
         "text": result.text,
-        "text_blocks": len(result.text_blocks),
-        "other_blocks": len(result.blocks) - len(result.text_blocks),
-        "blocks": [b.to_dict() for b in result.text_blocks],
+        "text_blocks": len(result),
+        "other_blocks": len(result.blocks) - len(result),
+        "blocks": [b.to_dict() for b in result],
+        "first_block": result[0].to_dict() if len(result) else None,
         "all_blocks": [b.to_dict() for b in result.blocks],
         "engine": "tesseract",
         "mode": "all_text",

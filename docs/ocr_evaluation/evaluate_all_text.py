@@ -62,8 +62,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--corpus', action='store_true', help='Process all 111 normalized pages')
     parser.add_argument('--rescore', action='store_true', help='Recheck saved anchors without running OCR')
+    parser.add_argument('--output', type=Path, help='Write a separate snapshot (preserve released evidence)')
     args = parser.parse_args()
-    output = HERE / ('all_text_corpus.json' if args.corpus else 'all_text_examples.json')
+    output = args.output or HERE / ('all_text_corpus.json' if args.corpus else 'all_text_examples.json')
     if args.rescore:
         result = json.loads(output.read_text())
         checks = anchor_checks(result['pages'])
@@ -106,7 +107,8 @@ def main():
                   weights_sha256=hashlib.sha256(weights.read_bytes()).hexdigest() if weights.is_file() else None,
                   code_sha256={name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
                                for name in ['yunost/text.py', 'yunost/layout.py', 'yunost/ocr.py',
-                                            'yunost/pipeline.py', 'server.py', 'static/index.html']},
+                                             'yunost/pipeline.py', 'yunost/refinement.py',
+                                             'server.py', 'static/index.html', 'static/app.js']},
                   fixture_sha256=hashlib.sha256((HERE / 'poetry_labels.json').read_bytes()).hexdigest(),
                   evaluation_script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                   note='Selected development anchors, not full-page ground truth or OCR recall. '

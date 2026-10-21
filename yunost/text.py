@@ -1,4 +1,5 @@
 """All-text extraction. The legacy prose classifier is deliberately not called."""
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 import cv2
@@ -7,14 +8,26 @@ import numpy as np
 import cvpipe
 from .decorators import timed
 from .layout import LayoutBlock, layout_order
-from .ocr import TesseractEngine
+from .ocr import TesseractEngine, ocr_budget
 from .pipeline import load_page
+from .refinement import refine_blocks
 
 
 @dataclass
-class TextPageResult:
+class TextPageResult(Sequence):
     blocks: list
     gray: np.ndarray
+
+    def __len__(self):
+        """Number of accepted text blocks; rejected OCR debris stays diagnostic."""
+        return len(self.text_blocks)
+
+    def __iter__(self):
+        return iter(self.text_blocks)
+
+    def __getitem__(self, index):
+        """Index/slice accepted blocks in physical reading order."""
+        return self.text_blocks[index]
 
     @property
     def text_blocks(self):
@@ -65,13 +78,19 @@ def _text_evidence(block, sparse=False):
 class TextExtractor:
     """Local page-layout OCR with a spatially deduplicated sparse-text fallback."""
 
-    def __init__(self, engine=None):
+    def __init__(self, engine=None, refine=True):
         # Upscaling full pages can join staircase columns in Tesseract's layout
         # analysis. Keep the 2000px page scale; legacy crop OCR still uses 1.5x.
         self.engine = engine or TesseractEngine(scale=1.0)
+        self.retry_engine = (TesseractEngine(lang=self.engine.lang, scale=1.5)
+                             if refine and isinstance(self.engine, TesseractEngine) else None)
 
     @timed
     def extract(self, data):
+        with ocr_budget():
+            return self._extract(data)
+
+    def _extract(self, data):
         gray = load_page(data)
         # Do not rotate a whole spread: columns can lean in opposite directions.
         flat = cvpipe.normalize_illumination(gray)
@@ -112,5 +131,7 @@ class TextExtractor:
             _mark_words(candidate.words, mask)
             blocks.append(candidate)
         accepted = layout_order([b for b in blocks if not b.rejected])
+        if self.retry_engine is not None:
+            refine_blocks(accepted, flat, self.retry_engine)
         rejected = [b for b in blocks if b.rejected]
         return TextPageResult(accepted + rejected, gray)

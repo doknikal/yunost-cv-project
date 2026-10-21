@@ -13,6 +13,7 @@ class LayoutWord:
     h: int
     confidence: float
     line_id: tuple
+    original_text: str = ''
 
 
 @dataclass
@@ -65,6 +66,7 @@ class LayoutBlock:
         return dict(x=x, y=y, w=w, h=h, lines=len(self.lines), text=self.text,
                     confidence=round(self.confidence, 1), source=self.source,
                     is_text=not bool(self.rejected), rejected=self.rejected,
+                    refined_words=sum(bool(w.original_text) for w in self.words),
                     line_boxes=[dict(x=min(w.x for w in line), y=min(w.y for w in line),
                                      right=max(w.x + w.w for w in line),
                                      bottom=max(w.y + w.h for w in line),
