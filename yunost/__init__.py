@@ -1,4 +1,4 @@
-"""yunost — поиск и распознавание прозы на страницах журнала «Юность»."""
+"""yunost — поиск и распознавание текста на страницах журнала «Юность»."""
 import logging
 import os
 import sys
@@ -10,6 +10,8 @@ logging.getLogger("yunost").addHandler(logging.NullHandler())
 from .blocks import BlockDetector, ProseSettings, TextBlock   # noqa: E402
 from .ocr import OcrEngine, TesseractEngine                   # noqa: E402
 from .pipeline import ProseExtractor, PageResult, UnreadableImage  # noqa: E402
+from .text import TextExtractor, TextPageResult                  # noqa: E402
 
 __all__ = ["BlockDetector", "ProseSettings", "TextBlock", "OcrEngine",
-           "TesseractEngine", "ProseExtractor", "PageResult", "UnreadableImage"]
+           "TesseractEngine", "TextExtractor", "TextPageResult",
+           "ProseExtractor", "PageResult", "UnreadableImage"]

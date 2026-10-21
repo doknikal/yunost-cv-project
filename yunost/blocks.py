@@ -1,10 +1,10 @@
 """
-blocks.py — поиск блоков текста на странице и отбор среди них ПРОЗЫ.
+blocks.py — старый поиск кандидатов для ProseExtractor, не текущий режим приложения.
+Жанрово-нейтральная разметка текста находится в layout.py / text.py.
 
-Идея. Проза в журнале набрана «в формат»: правые края строк почти совпадают.
-У стихов правый край рваный. Поэтому для каждого блока считаем долю строк,
-которые доходят до правого края блока («ровность»), и по ней отличаем прозу.
-Заголовки, иллюстрации, рамки и стихи в OCR не попадают.
+Геометрия выделяет кандидаты, а не определяет жанр. «Ровность» маски полезна
+для диагностики, но ненадёжна на наклонных фото и стихах с длинными строками.
+Окончательное решение принимает pipeline после OCR по структуре строк.
 """
 from dataclasses import dataclass, field
 
@@ -17,8 +17,8 @@ import cvpipe
 @dataclass
 class ProseSettings:
     """Пороги отбора прозы. Меняются без правки кода."""
-    min_lines: int = 8            # в блоке прозы не меньше стольких строк (короче — мало данных)
-    flush_min: float = 0.65       # доля строк с ровным правым краем
+    min_lines: int = 5            # минимум строк кандидата и OCR; короткие фрагменты неоднозначны
+    flush_min: float = 0.65       # устаревший порог маски: сохранён для совместимости, не отбирает прозу
     max_capital_start: float = 0.75   # больше строк с заглавной — это стихи (проверка после OCR)
     min_cyrillic: float = 0.75        # меньше кириллицы — ноты, рисунок или мусор
     min_word_quality: float = 0.60    # меньше настоящих слов — мусор OCR (ноты и т.п.)
@@ -26,6 +26,11 @@ class ProseSettings:
     min_fill: float = 0.04        # доля «чернил» в рамке блока (отсекает рамки и кромки фото)
     min_width: float = 0.10       # блок не уже этой доли ширины страницы
     contained: float = 0.85       # блок внутри другого блока на столько — дубль
+    min_ocr_flush: float = 0.65   # ровность правого края уже распознанных строк
+    min_continuation: float = 0.45  # перенос фразы на следующую физическую строку
+    min_hyphenated: float = 0.08  # переносы слов — дополнительное свидетельство прозы
+    max_deep_indent: float = 0.25  # частые большие отступы характерны для стихов «лесенкой»
+    min_unhyphenated_lines: int = 10  # без переносов слов короткий фрагмент неоднозначен
 
 
 @dataclass
@@ -41,6 +46,10 @@ class TextBlock:
     is_prose: bool = False
     rejected: str = field(default="", compare=False)   # почему не проза (после OCR)
     text: str = field(default="", compare=False)
+    deskew_angle: float = field(default=0.0, compare=False)
+    noise_level: float = field(default=0.0, compare=False)
+    raw_text: str = field(default="", compare=False)
+    ocr_metrics: dict = field(default_factory=dict, compare=False)
 
     @property
     def box(self):
@@ -63,7 +72,9 @@ class TextBlock:
     def to_dict(self):
         return dict(x=self.x, y=self.y, w=self.w, h=self.h, lines=self.n_lines,
                     flush=round(self.flush, 2), is_prose=self.is_prose,
-                    rejected=self.rejected, text=self.text)
+                    rejected=self.rejected, text=self.text,
+                    deskew_angle=round(self.deskew_angle, 2), noise_level=self.noise_level,
+                    raw_text=self.raw_text, ocr_metrics=self.ocr_metrics)
 
 
 def reading_order(blocks):
@@ -105,7 +116,7 @@ def _line_bands(profile):
 
 
 class BlockDetector:
-    """Находит блоки текста и помечает, какие из них — проза."""
+    """Находит кандидаты для OCR; is_prose до проверки — предварительный флаг."""
 
     def __init__(self, settings=None):
         self.settings = settings or ProseSettings()
@@ -113,12 +124,7 @@ class BlockDetector:
     def detect(self, gray):
         """gray — страница в оттенках серого. Возвращает список TextBlock."""
         s = self.settings
-        mask = cvpipe.ink_mask(gray)
-        illo, _ = cvpipe.detect_illustrations(mask)
-        text = cv2.bitwise_and(mask, cv2.bitwise_not(illo))   # иллюстрации — не текст
-        text = self._strip_frames(text)
-        text = self._strip_vertical_lines(text)
-        text = self._strip_horizontal_lines(text)
+        text = self.text_mask(gray)
         height, width = text.shape
 
         line_h = self._line_height(text)
@@ -136,10 +142,22 @@ class BlockDetector:
                 continue
             block = self._measure(region, x, y, w, h, line_h)
             if block is not None:
-                block.is_prose = (block.n_lines >= s.min_lines
-                                  and block.flush >= s.flush_min)
+                # Geometry only proposes candidates. Tilted lines, paragraphs
+                # and justified verse make a hard flush threshold unreliable.
+                # OCR verification decides whether each candidate is prose.
+                block.is_prose = block.n_lines >= s.min_lines
                 blocks.append(block)
         return self._drop_duplicates(blocks)
+
+    def text_mask(self, gray):
+        """Shared text evidence for initial detection and column-boundary recovery."""
+        mask = cvpipe.ink_mask(gray)
+        illo, _ = cvpipe.detect_illustrations(mask)
+        text = cv2.bitwise_and(mask, cv2.bitwise_not(illo))   # иллюстрации — не текст
+        text = self._strip_frames(text)
+        text = self._strip_vertical_lines(text)
+        text = self._strip_horizontal_lines(text)
+        return text
 
     @staticmethod
     def _strip_frames(text):
@@ -190,8 +208,18 @@ class BlockDetector:
         profile = region.sum(axis=1) / 255.0
         if profile.max() <= 0:
             return None
+        bands = _line_bands(profile)
+        if len(bands) < 3 and h >= 5 * line_h:
+            # A wide, slightly tilted paragraph can project to one solid band.
+            # Recover its physical lines before discarding it as non-text.
+            # Original page coordinates stay unchanged for cropping/overlays.
+            from .preprocessing import straighten_text
+            straight, angle = straighten_text(255 - region)
+            if angle:
+                region = 255 - straight
+                bands = _line_bands(region.sum(axis=1) / 255.0)
         edges, centers = [], []
-        for band in _line_bands(profile):
+        for band in bands:
             cols = np.where(region[band[0]:band[-1] + 1].sum(axis=0) > 0)[0]
             if len(cols):
                 edges.append(cols.max())
