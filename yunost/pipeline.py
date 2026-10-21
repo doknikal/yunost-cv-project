@@ -32,6 +32,7 @@ except ImportError:                    # без pillow-heif HEIC просто н
 
 Image.MAX_IMAGE_PIXELS = 80_000_000    # защита от «бомб»: слишком большие картинки не открываем
 TARGET_HEIGHT = 2000                   # все пороги cvpipe подобраны для такой высоты
+MAX_PAGE_WIDTH = 4000                  # ограничиваем память на широких разворотах
 PROSE_COLOR = (60, 160, 0)             # BGR
 OTHER_COLOR = (150, 150, 150)
 
@@ -41,20 +42,28 @@ class UnreadableImage(ValueError):
 
 
 def load_page(data):
-    """Байты файла -> страница в оттенках серого высотой TARGET_HEIGHT."""
+    """Decode one page; apply EXIF and composite transparency onto white paper."""
     try:
-        img = Image.open(io.BytesIO(data))
-        if img.width * img.height > Image.MAX_IMAGE_PIXELS:
-            raise UnreadableImage("Изображение больше 80 мегапикселей")
-        if min(img.size) < 64 or not 0.15 <= img.width / img.height <= 6:
-            raise UnreadableImage("Загрузите целую страницу: изображение слишком узкое или маленькое")
-        img = ImageOps.exif_transpose(img).convert("L")   # учитываем поворот с телефона
+        with Image.open(io.BytesIO(data)) as source:
+            if source.width * source.height > Image.MAX_IMAGE_PIXELS:
+                raise UnreadableImage("Изображение больше 80 мегапикселей")
+            if getattr(source, 'n_frames', 1) != 1:
+                raise UnreadableImage("Загрузите одну страницу, не анимацию или многостраничный файл")
+            if min(source.size) < 64 or not 0.15 <= source.width / source.height <= 6:
+                raise UnreadableImage("Загрузите целую страницу: изображение слишком узкое или маленькое")
+            img = ImageOps.exif_transpose(source)
+            if 'A' in img.getbands() or 'transparency' in img.info:
+                rgba = img.convert('RGBA')
+                paper = Image.new('RGBA', rgba.size, 'white')
+                img = Image.alpha_composite(paper, rgba)
+            img = img.convert('L')
+            scale = min(TARGET_HEIGHT / img.height, MAX_PAGE_WIDTH / img.width)
+            size = (max(1, round(img.width * scale)), max(1, round(img.height * scale)))
+            return np.array(img.resize(size, Image.LANCZOS))
     except UnreadableImage:
         raise
     except Exception as exc:
         raise UnreadableImage("Не удалось открыть файл как изображение") from exc
-    width = round(img.width * TARGET_HEIGHT / img.height)
-    return np.array(img.resize((width, TARGET_HEIGHT), Image.LANCZOS))
 
 
 @dataclass

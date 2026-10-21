@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Аналитика корпуса «Юности»</title>
+  <link rel="stylesheet" href="/static/analytics.css">
+  <script src="/static/vendor/chart.umd.js" defer></script>
+  <script src="/static/analytics.js" defer></script>
+</head>
+<body>
+<main>
+  <nav aria-label="Разделы проекта"><a href="/">Распознать страницу</a><a href="/analytics" aria-current="page">Аналитика корпуса</a><a href="/docs">API</a></nav>
+  <h1>Визуальный язык «Юности»</h1>
+  <p class="lead">Три настраиваемых графика по исследовательскому корпусу. Все выборки читаются из SQLite, а не из CSV при каждом запросе.</p>
+  <p id="corpus-summary" role="status">Открываем базу корпуса…</p>
+  <p class="notice">Это геометрические признаки страниц, не точность OCR. Фото 1962–1965 годов — выборочная, преимущественно поэтическая подборка; её нельзя напрямую приравнивать к сканам. Динамика считается по страницам, а не по независимым номерам. Доли заданы от 0 до 1, не в процентах.</p>
+
+  <form id="filters-form">
+    <fieldset id="filters" class="controls" data-controls disabled>
+      <legend>Общий отбор страниц для всех графиков</legend>
+      <label>Год от<input id="year-min" type="number" min="1800" max="2200" step="1" required></label>
+      <label>Год до<input id="year-max" type="number" min="1800" max="2200" step="1" required></label>
+      <label>Источник<select id="source"><option value="all">Сканы и фотографии</option><option value="scan">Только сканы</option><option value="photo">Только фотографии</option></select></label>
+      <button type="submit">Обновить все графики</button>
+    </fieldset>
+  </form>
+  <p id="filters-error" class="error" role="alert" hidden></p>
+  <noscript>Для изменения параметров графиков включите JavaScript. Числовые данные также доступны через API /api/analytics/.</noscript>
+
+  <section class="panel" id="histogram-panel" aria-labelledby="histogram-title">
+    <h2 id="histogram-title">1. Распределение признака</h2>
+    <fieldset class="controls" data-controls id="histogram-controls" disabled>
+      <legend>Настройки гистограммы</legend>
+      <label>Признак<select id="histogram-metric" data-metric></select></label>
+      <label>Число интервалов<input id="bins" type="number" min="2" max="60" step="1" value="12" required></label>
+    </fieldset>
+    <p id="histogram-status" role="status" aria-live="polite"></p>
+    <div class="chart-frame"><canvas id="histogram-chart" role="img" aria-label="Гистограмма распределения выбранного признака">Числовые данные приведены в таблице ниже.</canvas></div>
+    <details><summary>Числа из базы для гистограммы</summary><div class="table-scroll"><table id="histogram-table"></table></div><p>Левая граница включается; правая исключается, кроме последнего интервала.</p></details>
+  </section>
+
+  <section class="panel" id="trend-panel" aria-labelledby="trend-title">
+    <h2 id="trend-title">2. Динамика во времени</h2>
+    <fieldset class="controls" data-controls id="trend-controls" disabled>
+      <legend>Настройки динамики</legend>
+      <label>Признак<select id="trend-metric" data-metric></select></label>
+      <label>Агрегация по страницам<select id="aggregation"><option value="median">Медиана</option><option value="mean">Среднее</option></select></label>
+    </fieldset>
+    <p id="trend-status" role="status" aria-live="polite"></p>
+    <div class="chart-frame"><canvas id="trend-chart" role="img" aria-label="Динамика выбранного признака по годам отдельно для сканов и фотографий">Числовые данные приведены в таблице ниже.</canvas></div>
+    <details><summary>Числа из базы для динамики</summary><div class="table-scroll"><table id="trend-table"></table></div><p>Линии соединяют только наблюдаемые годы; значений для пропущенных лет нет.</p></details>
+  </section>
+
+  <section class="panel" id="scatter-panel" aria-labelledby="scatter-title">
+    <h2 id="scatter-title">3. Связь двух признаков</h2>
+    <fieldset class="controls" data-controls id="scatter-controls" disabled>
+      <legend>Настройки диаграммы рассеяния</legend>
+      <label>Ось X<select id="x-metric" data-metric></select></label>
+      <label>Ось Y<select id="y-metric" data-metric></select></label>
+    </fieldset>
+    <p id="scatter-status" role="status" aria-live="polite"></p>
+    <div class="chart-frame"><canvas id="scatter-chart" role="img" aria-label="Диаграмма рассеяния двух выбранных признаков">Числовые данные приведены в таблице ниже.</canvas></div>
+    <details><summary>Страницы и значения из базы</summary><div class="table-scroll"><table id="scatter-table"></table></div></details>
+  </section>
+  <footer>Исходные CSV и исторический ноутбук не изменяются. Пустое значение признака хранится как NULL и исключается только из соответствующего графика, а не заменяется нулём. Загруженные пользователем OCR-изображения в эту базу не записываются.</footer>
+</main>
+</body>
+</html>

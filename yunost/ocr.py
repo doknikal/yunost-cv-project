@@ -8,10 +8,29 @@ ocr.py — движки распознавания текста.
 from __future__ import annotations
 
 import re
+import time
 from abc import ABC, abstractmethod
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 
 import numpy as np
+
+
+class OCRTimeout(TimeoutError):
+    """An OCR process or the complete page exceeded its time budget."""
+
+
+_deadline = ContextVar('ocr_deadline', default=None)
+
+
+@contextmanager
+def ocr_budget(seconds=90):
+    token = _deadline.set(time.monotonic() + seconds)
+    try:
+        yield
+    finally:
+        _deadline.reset(token)
 
 
 @dataclass
@@ -44,19 +63,32 @@ class TesseractEngine(OcrEngine):
 
     name = "tesseract"
 
-    def __init__(self, lang="rus", scale=1.5):
+    def __init__(self, lang="rus", scale=1.5, timeout=30):
         import pytesseract                         # импорт здесь, чтобы тесты без OCR работали
         self._tess = pytesseract
         self.lang = lang
         self.scale = scale
+        self.timeout = timeout
+
+    def _data(self, image, psm):
+        deadline = _deadline.get()
+        timeout = self.timeout if deadline is None else min(self.timeout, deadline - time.monotonic())
+        if timeout <= 0:
+            raise OCRTimeout('Превышено время распознавания страницы')
+        try:
+            return self._tess.image_to_data(image, lang=self.lang, config=f'--psm {psm}',
+                                            output_type=self._tess.Output.DICT, timeout=timeout)
+        except RuntimeError as exc:
+            if 'timeout' in str(exc).lower():
+                raise OCRTimeout('Превышено время распознавания страницы') from exc
+            raise
 
     def read_lines(self, image):
         import cv2
         if self.scale != 1:
             image = cv2.resize(image, None, fx=self.scale, fy=self.scale,
                                interpolation=cv2.INTER_CUBIC)
-        data = self._tess.image_to_data(image, lang=self.lang, config="--psm 6",
-                                        output_type=self._tess.Output.DICT)
+        data = self._data(image, 6)
         lines = {}
         for i, word in enumerate(data["text"]):
             if not word.strip() or float(data["conf"][i]) < 0:
@@ -87,8 +119,7 @@ class TesseractEngine(OcrEngine):
         if self.scale != 1:
             image = cv2.resize(image, None, fx=self.scale, fy=self.scale,
                                interpolation=cv2.INTER_CUBIC)
-        data = self._tess.image_to_data(image, lang=self.lang, config=f'--psm {psm}',
-                                        output_type=self._tess.Output.DICT)
+        data = self._data(image, psm)
         blocks = {}
         for i, text in enumerate(data['text']):
             if not text.strip() or float(data['conf'][i]) < 0:

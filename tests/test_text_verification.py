@@ -55,6 +55,7 @@ def test_tesseract_records_line_extents_in_original_scale():
     import numpy as np
 
     engine = object.__new__(TesseractEngine)
+    engine.timeout = 30
     engine.scale, engine.lang, engine._tess = 2, "rus", FakeTesseract()
     lines = engine.read_lines(np.full((50, 100), 255, dtype=np.uint8))
     assert lines == [OcrLine("первое слово", 6, 60, 5, 22),
