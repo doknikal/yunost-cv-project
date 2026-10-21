@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "image": "data/norm/1957-02_p02.png",
+  "sha256": "bfe0dfe12d1c678e225ec2f4d83e4989cc830e65104a6f7446734564ebf06d61",
+  "image_size": [1471, 2000],
+  "split": "held_out",
+  "bbox": [815, 450, 1250, 1160],
+  "uncertainty_px": 5,
+  "provenance": "Model visually inspected the original and a 2x coordinate-grid crop before implementation or predictions. Approximate rightmost printed text including punctuation; isolated dirt excluded. Not independent human gold or an exhaustive page annotation. Four consecutive quatrains of the right-hand poem, excluding its title and later stanzas. Held out from tuning.",
+  "lines": [
+    {"top": 474, "bottom": 498, "right": 1190, "text": "Податлив снежок мокроватый"},
+    {"top": 505, "bottom": 530, "right": 1111, "text": "Еще неокрепшей зимы."},
+    {"top": 537, "bottom": 560, "right": 1140, "text": "Снегурочку лепят ребята,"},
+    {"top": 568, "bottom": 589, "right": 1174, "text": "Как в детстве лепили и мы."},
+    {"top": 661, "bottom": 685, "right": 1174, "text": "Красны, как гусиные лапки,"},
+    {"top": 692, "bottom": 716, "right": 1089, "text": "Озябшие руки горят."},
+    {"top": 723, "bottom": 747, "right": 1223, "text": "Не внучка для деда и бабки,—"},
+    {"top": 754, "bottom": 779, "right": 1180, "text": "Подружка растет для ребят."},
+    {"top": 847, "bottom": 871, "right": 1174, "text": "У всех на глазах вырастает,"},
+    {"top": 878, "bottom": 903, "right": 1220, "text": "Чтоб тут же войти в их семью,"},
+    {"top": 910, "bottom": 933, "right": 1206, "text": "И каждый мальчишка мечтает"},
+    {"top": 941, "bottom": 965, "right": 1170, "text": "Вдохнуть в нее душу свою."},
+    {"top": 1031, "bottom": 1056, "right": 1235, "text": "Недаром, собравшись в сторонке,"},
+    {"top": 1063, "bottom": 1087, "right": 1154, "text": "В проеме широких ворот,"},
+    {"top": 1095, "bottom": 1117, "right": 1150, "text": "Ревниво косятся девчонки"},
+    {"top": 1125, "bottom": 1149, "right": 1204, "text": "На ту, что над снегом встает."}
+  ]
+}

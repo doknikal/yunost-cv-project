@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "annotation_id": "1967-12_p03_column_1_top_18_physical_rows",
+  "purpose": "Geometry-only reference for physical printed line right edges; this region was not selected as genre ground truth.",
+  "source": {
+    "path": "data/norm/1967-12_p03.png",
+    "sha256": "bf11e8b79050e8e9a777c144e505ed0178b18acc2c194274127920b947a3387b",
+    "width_px": 1545,
+    "height_px": 2000,
+    "coordinate_space": "Unmodified normalized source image, not the enlarged review crops."
+  },
+  "region": {
+    "column": 1,
+    "crop_bbox_xyxy": [210, 155, 600, 565],
+    "crop_bbox_role": "Enclosing rectangle of the region inspected in overlapping enlarged crops.",
+    "first_physical_row_in_column": 1,
+    "physical_row_count": 18,
+    "consecutive": true,
+    "selection_reason": "Top-of-column consecutive rows containing staggered right edges, short rows, and indented rows."
+  },
+  "coordinate_conventions": {
+    "origin": "Top-left source pixel; x increases rightward and y downward.",
+    "units": "Source-image pixels.",
+    "bounds": "Approximate outer ink bounds: left/top inclusive, right/bottom exclusive. These are not exact pixel-mask boundaries.",
+    "right_edge": "Right boundary of the rightmost printed glyph or punctuation belonging to this physical row, including commas, periods, ellipses, quotation marks, or brackets. Ignore detached background specks and faint scan halos.",
+    "physical_row": "One visible horizontal printed row. Never concatenate a short or indented row with the preceding/following row to reconstruct a literary line.",
+    "default_uncertainty_px": {
+      "left_x_px": 3,
+      "y_top_px": 3,
+      "right_x_px": 3,
+      "y_bottom_px": 3
+    },
+    "uncertainty_meaning": "Each coordinate is a manual visual estimate with approximately plus/minus 3 px tolerance, not a calibrated confidence interval.",
+    "text_hint": "Non-authoritative visually read anchor only; not OCR output and not transcription ground truth."
+  },
+  "review": {
+    "method": "Manual visual estimation by the model from the original image and PIL-generated enlarged coordinate-grid crops.",
+    "reviewed_by": "gpt-6.1-sol",
+    "human_reviewed": false,
+    "original_image_visually_viewed": true,
+    "ocr_predictions_consulted": false,
+    "connected_components_used": false,
+    "target_algorithm_outputs_consulted": false,
+    "image_operations_used": ["crop", "resize for display", "draw coordinate grid", "draw manually entered bounds for visual checking"],
+    "grid_spacing_px": [10, 5],
+    "display_enlargements": [3, 4],
+    "reviewed_crop_bboxes_xyxy": [
+      [210, 155, 600, 355],
+      [210, 345, 600, 560],
+      [220, 165, 595, 277],
+      [220, 277, 595, 385],
+      [220, 385, 475, 476],
+      [220, 476, 480, 565]
+    ],
+    "limitations": [
+      "Model-reviewed visual annotations are not independent human-certified ground truth.",
+      "Blur and grayscale halos make exact foreground cutoffs ambiguous; all four bounds remain approximate.",
+      "Closing punctuation on physical row 12 is visually ambiguous in identity; its rightmost printed mark is included in the geometric endpoint.",
+      "These 18 rows cover only one local region of one page and are not representative of all pages, typography, or genres.",
+      "No claim is made about literary-line identity, poem structure, or genre."
+    ]
+  },
+  "lines": [
+    {
+      "id": "c1_r01",
+      "physical_row": 1,
+      "text_hint": "Не знаю",
+      "left_x_px": 230,
+      "y_top_px": 169,
+      "right_x_px": 320,
+      "y_bottom_px": 188,
+      "layout_note": "Short row; trailing comma included."
+    },
+    {
+      "id": "c1_r02",
+      "physical_row": 2,
+      "text_hint": "чего они этим добились",
+      "left_x_px": 315,
+      "y_top_px": 188,
+      "right_x_px": 564,
+      "y_bottom_px": 210,
+      "layout_note": "Indented physical row, separate from row 1."
+    },
+    {
+      "id": "c1_r03",
+      "physical_row": 3,
+      "text_hint": "и что потеряли",
+      "left_x_px": 230,
+      "y_top_px": 216,
+      "right_x_px": 388,
+      "y_bottom_px": 233
+    },
+    {
+      "id": "c1_r04",
+      "physical_row": 4,
+      "text_hint": "но я повторяю",
+      "left_x_px": 230,
+      "y_top_px": 239,
+      "right_x_px": 386,
+      "y_bottom_px": 255
+    },
+    {
+      "id": "c1_r05",
+      "physical_row": 5,
+      "text_hint": "Земля наша",
+      "left_x_px": 230,
+      "y_top_px": 257,
+      "right_x_px": 362,
+      "y_bottom_px": 274
+    },
+    {
+      "id": "c1_r06",
+      "physical_row": 6,
+      "text_hint": "сильно лесами обширна",
+      "left_x_px": 334,
+      "y_top_px": 279,
+      "right_x_px": 585,
+      "y_bottom_px": 298,
+      "layout_note": "Indented physical row; trailing comma included."
+    },
+    {
+      "id": "c1_r07",
+      "physical_row": 7,
+      "text_hint": "лугами удачна",
+      "left_x_px": 230,
+      "y_top_px": 305,
+      "right_x_px": 382,
+      "y_bottom_px": 321
+    },
+    {
+      "id": "c1_r08",
+      "physical_row": 8,
+      "text_hint": "ручьями обильна",
+      "left_x_px": 230,
+      "y_top_px": 324,
+      "right_x_px": 430,
+      "y_bottom_px": 344,
+      "layout_note": "Trailing dots and closing quotation mark included."
+    },
+    {
+      "id": "c1_r09",
+      "physical_row": 9,
+      "text_hint": "И только обидно",
+      "left_x_px": 230,
+      "y_top_px": 347,
+      "right_x_px": 406,
+      "y_bottom_px": 365
+    },
+    {
+      "id": "c1_r10",
+      "physical_row": 10,
+      "text_hint": "что нет на земле",
+      "left_x_px": 230,
+      "y_top_px": 371,
+      "right_x_px": 402,
+      "y_bottom_px": 385
+    },
+    {
+      "id": "c1_r11",
+      "physical_row": 11,
+      "text_hint": "как бы это сказать",
+      "left_x_px": 230,
+      "y_top_px": 389,
+      "right_x_px": 431,
+      "y_bottom_px": 409,
+      "layout_note": "Opening tall punctuation and trailing comma included."
+    },
+    {
+      "id": "c1_r12",
+      "physical_row": 12,
+      "text_hint": "чтоб звучало толково",
+      "left_x_px": 230,
+      "y_top_px": 412,
+      "right_x_px": 464,
+      "y_bottom_px": 431,
+      "layout_note": "Right edge includes the tall closing punctuation; punctuation identity is not asserted."
+    },
+    {
+      "id": "c1_r13",
+      "physical_row": 13,
+      "text_hint": "чего-то",
+      "left_x_px": 230,
+      "y_top_px": 437,
+      "right_x_px": 304,
+      "y_bottom_px": 450,
+      "layout_note": "Very short independent physical row."
+    },
+    {
+      "id": "c1_r14",
+      "physical_row": 14,
+      "text_hint": "такого",
+      "left_x_px": 230,
+      "y_top_px": 460,
+      "right_x_px": 311,
+      "y_bottom_px": 471,
+      "layout_note": "Very short independent physical row; trailing ellipsis included."
+    },
+    {
+      "id": "c1_r15",
+      "physical_row": 15,
+      "text_hint": "То сеем не там",
+      "left_x_px": 230,
+      "y_top_px": 478,
+      "right_x_px": 389,
+      "y_bottom_px": 494
+    },
+    {
+      "id": "c1_r16",
+      "physical_row": 16,
+      "text_hint": "И не то",
+      "left_x_px": 387,
+      "y_top_px": 499,
+      "right_x_px": 467,
+      "y_bottom_px": 516,
+      "layout_note": "Strongly indented, very short physical row; not merged with row 15."
+    },
+    {
+      "id": "c1_r17",
+      "physical_row": 17,
+      "text_hint": "И не так, чтобы",
+      "left_x_px": 230,
+      "y_top_px": 521,
+      "right_x_px": 386,
+      "y_bottom_px": 540
+    },
+    {
+      "id": "c1_r18",
+      "physical_row": 18,
+      "text_hint": "к сроку",
+      "left_x_px": 230,
+      "y_top_px": 547,
+      "right_x_px": 312,
+      "y_bottom_px": 563,
+      "layout_note": "Very short independent physical row; terminal period and descenders included."
+    }
+  ]
+}

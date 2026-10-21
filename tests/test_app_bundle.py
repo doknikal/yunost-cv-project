@@ -12,7 +12,7 @@ def test_archive_is_complete_reproducible_and_excludes_generated_database(tmp_pa
     root = Path(__file__).resolve().parents[1]
     for name in ['server.py', 'cvpipe.py', 'setup_app.py', 'run_app.py', 'import_corpus.py',
                  'requirements-app.txt', 'install_mac.command', 'start_mac.command',
-                 'START_HERE.md', 'COURSEWORK.md', 'COURSEWORK_CHECK.md']:
+                  'START_HERE.md', 'COURSEWORK.md', 'COURSEWORK_CHECK.md', 'EDGE_METHOD.md']:
         shutil.copyfile(root / name, tmp_path / name)
     for folder in ['yunost', 'static']:
         shutil.copytree(root / folder, tmp_path / folder, ignore=shutil.ignore_patterns('__pycache__'))
@@ -36,12 +36,13 @@ def test_archive_is_complete_reproducible_and_excludes_generated_database(tmp_pa
     with zipfile.ZipFile(archive_path) as archive:
         files = {p.removeprefix('Yunost-OCR/'): archive.read(p) for p in archive.namelist()}
         manifest = json.loads(files.pop('MANIFEST.json'))
-        assert manifest['version'] == '1.2.0'
+        assert manifest['version'] == '1.3.0'
         assert manifest['files'] == {p: hashlib.sha256(content).hexdigest() for p, content in files.items()}
         required = {'import_corpus.py', 'yunost/storage.py', 'yunost/analytics.py',
                     'static/analytics.html', 'static/analytics.css', 'static/analytics.js',
                     'static/vendor/chart.umd.js', 'static/vendor/Chart.js.LICENSE.md',
-                    'data/manifest.csv', 'data/features.csv', 'COURSEWORK.md', 'COURSEWORK_CHECK.md'}
+                    'data/manifest.csv', 'data/features.csv', 'COURSEWORK.md', 'COURSEWORK_CHECK.md',
+                    'yunost/edges.py', 'EDGE_METHOD.md'}
         assert required.issubset(files)
         assert not any(p.endswith('.sqlite3') or '__pycache__' in p for p in files)
         for info in archive.infolist():

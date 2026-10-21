@@ -1,0 +1,307 @@
+{
+  "schema": 1,
+  "checked_at_utc": "2026-10-21T11:42:11.960658+00:00",
+  "archive": "/Users/kiddmaloy/Documents/Default Project/yunost-cv-project/dist/Yunost-OCR-1.3.0.zip",
+  "sha256": "80ec7a74fa6979405f23ef934a84621b78b57b2d8eb019881fc70ba7f32d2675",
+  "expected_sha256": "80ec7a74fa6979405f23ef934a84621b78b57b2d8eb019881fc70ba7f32d2675",
+  "sha256_matches": true,
+  "evidence_directory": "/private/var/folders/zb/f5tghy4j257fjtzwt9czxk_c0000gn/T/opencode/Yunost 1.3.0 independent check z90042m3",
+  "fresh_install_directory": "/private/var/folders/zb/f5tghy4j257fjtzwt9czxk_c0000gn/T/opencode/Yunost 1.3.0 independent check z90042m3/Yunost-OCR",
+  "manifest": {
+    "version": "1.3.0",
+    "checked_files": 39,
+    "all_hashes_match": true,
+    "exact_payload_file_set": true
+  },
+  "repository_source_comparison": {
+    "checked_files": 39,
+    "all_byte_identical": true,
+    "details": "/private/var/folders/zb/f5tghy4j257fjtzwt9czxk_c0000gn/T/opencode/Yunost 1.3.0 independent check z90042m3/archive-verification.json"
+  },
+  "installation": {
+    "python": "3.9.6 (default, Aug 17 2026, 12:07:42) ",
+    "fresh_setup_s": 20.618,
+    "repeat_setup_s": 0.954,
+    "pip_check_s": 0.349,
+    "all_return_codes": [
+      0,
+      0,
+      0
+    ],
+    "pip_check": "No broken requirements found."
+  },
+  "constraints": {
+    "pytest_not_rerun": true,
+    "prep_package_not_run": true,
+    "shared_browser_not_used": true,
+    "port8000_not_contacted": true,
+    "no_unrelated_processes_stopped": true,
+    "only_repository_write": "/Users/kiddmaloy/Documents/Default Project/yunost-cv-project/docs/edge_evaluation/archive-1.3.0-check.json",
+    "report_creation_mode": "x"
+  },
+  "caveats": [
+    "macOS arm64 / Python 3.9.6 / Tesseract 5.5.3 only; no cross-platform install tested.",
+    "pip used cached wheels; network-free installation was not tested.",
+    "UI smoke uses isolated nonpersistent system WebKit and the actual HTTP OCR response; native file-picker interaction is not tested.",
+    "pip 21.2.4 emitted an upgrade notice, not a dependency error."
+  ],
+  "runtime": {
+    "port": 8002,
+    "pid": 77547,
+    "skipped_occupied_ports": [],
+    "command": [
+      "/private/var/folders/zb/f5tghy4j257fjtzwt9czxk_c0000gn/T/opencode/Yunost 1.3.0 independent check z90042m3/Yunost-OCR/.venv-app/bin/python",
+      "/private/var/folders/zb/f5tghy4j257fjtzwt9czxk_c0000gn/T/opencode/Yunost 1.3.0 independent check z90042m3/Yunost-OCR/run_app.py",
+      "--port",
+      "8002",
+      "--no-browser"
+    ],
+    "listener_pids": [
+      77547
+    ],
+    "startup_s": 31.983,
+    "cleanup": {
+      "owned_pid": 77547,
+      "stopped": true,
+      "returncode": 0,
+      "already_exited": false,
+      "duration_s": 0.24
+    },
+    "total_duration_s": 40.12
+  },
+  "health": {
+    "status": 200,
+    "bytes": 77,
+    "duration_s": 0.058,
+    "response": {
+      "status": "ok",
+      "tesseract": "/opt/homebrew/bin/tesseract",
+      "languages": [
+        "rus"
+      ]
+    }
+  },
+  "analytics": {
+    "options": {
+      "status": 200,
+      "bytes": 774,
+      "duration_s": 0.016,
+      "finite_numeric_values": 9,
+      "keys": [
+        "storage",
+        "pages",
+        "issues",
+        "years",
+        "sources",
+        "metrics",
+        "uploads_stored"
+      ],
+      "pages": 111,
+      "issues": 15
+    },
+    "histogram": {
+      "status": 200,
+      "bytes": 920,
+      "duration_s": 0.003,
+      "finite_numeric_values": 40,
+      "keys": [
+        "storage",
+        "selected_pages",
+        "used_pages",
+        "missing_pages",
+        "metric",
+        "bins",
+        "bars"
+      ],
+      "selected_pages": 111,
+      "used_pages": 110,
+      "missing_pages": 1
+    },
+    "trend": {
+      "status": 200,
+      "bytes": 508,
+      "duration_s": 0.002,
+      "finite_numeric_values": 23,
+      "keys": [
+        "storage",
+        "selected_pages",
+        "used_pages",
+        "missing_pages",
+        "metric",
+        "aggregation",
+        "series"
+      ],
+      "selected_pages": 111,
+      "used_pages": 110,
+      "missing_pages": 1
+    },
+    "scatter": {
+      "status": 200,
+      "bytes": 11469,
+      "duration_s": 0.004,
+      "finite_numeric_values": 333,
+      "keys": [
+        "storage",
+        "selected_pages",
+        "used_pages",
+        "missing_pages",
+        "x_metric",
+        "y_metric",
+        "points"
+      ],
+      "selected_pages": 111,
+      "used_pages": 110,
+      "missing_pages": 1
+    }
+  },
+  "local_assets_http": {
+    "checked_routes": 10,
+    "all_200_and_exact": true,
+    "routes": {
+      "/": {
+        "status": 200,
+        "bytes": 8622,
+        "duration_s": 0.004,
+        "sha256_matches_manifest": true
+      },
+      "/analytics": {
+        "status": 200,
+        "bytes": 6382,
+        "duration_s": 0.002,
+        "sha256_matches_manifest": true
+      },
+      "/static/analytics.css": {
+        "status": 200,
+        "bytes": 2776,
+        "duration_s": 0.002,
+        "sha256_matches_manifest": true
+      },
+      "/static/analytics.html": {
+        "status": 200,
+        "bytes": 6382,
+        "duration_s": 0.001,
+        "sha256_matches_manifest": true
+      },
+      "/static/analytics.js": {
+        "status": 200,
+        "bytes": 9845,
+        "duration_s": 0.001,
+        "sha256_matches_manifest": true
+      },
+      "/static/app.js": {
+        "status": 200,
+        "bytes": 9561,
+        "duration_s": 0.001,
+        "sha256_matches_manifest": true
+      },
+      "/static/index.html": {
+        "status": 200,
+        "bytes": 8622,
+        "duration_s": 0.001,
+        "sha256_matches_manifest": true
+      },
+      "/static/vendor/Chart.js.LICENSE.md": {
+        "status": 200,
+        "bytes": 1093,
+        "duration_s": 0.001,
+        "sha256_matches_manifest": true
+      },
+      "/static/vendor/README.md": {
+        "status": 200,
+        "bytes": 572,
+        "duration_s": 0.002,
+        "sha256_matches_manifest": true
+      },
+      "/static/vendor/chart.umd.js": {
+        "status": 200,
+        "bytes": 206279,
+        "duration_s": 0.002,
+        "sha256_matches_manifest": true
+      }
+    }
+  },
+  "ocr": {
+    "status": 200,
+    "bytes": 853317,
+    "duration_s": 6.519,
+    "input": "examples/page_3.png",
+    "input_sha256": "f0d567e914cca876b74fe8b2402bd7534f1061fcb2685461e96b30772fb92245",
+    "baseline": "/Users/kiddmaloy/Documents/Default Project/yunost-cv-project/.venv/evaluation/reliability/final_user_page.json",
+    "comparison": "Strict serialized JSON canonical byte comparison for each legacy field; both sides JSON-round-tripped.",
+    "all_old_json_fields_exact_identical": true,
+    "old_field_count": 9,
+    "differing_fields": [],
+    "added_fields": [
+      "edge_analysis",
+      "first_block"
+    ],
+    "text_blocks": 14,
+    "other_blocks": 1,
+    "characters": 3547,
+    "old_json_sha256": "2c5d7a88578db60190711dff35c630a741217c0a3b37d485f4b61fa83612f209",
+    "http_legacy_json_sha256": "2c5d7a88578db60190711dff35c630a741217c0a3b37d485f4b61fa83612f209",
+    "edge_method": "components-v2",
+    "edge_blocks": 14,
+    "edge_lines": 208,
+    "edge_blocks_with_numeric_value": 10,
+    "edge_numeric_values_finite": 1834,
+    "strict_json_no_nan_infinity": true,
+    "first_block_matches": true
+  },
+  "ui": {
+    "analytics": {
+      "chartCount": 3,
+      "chartLibraryLoaded": true,
+      "resources": [
+        "http://127.0.0.1:8002/static/analytics.css",
+        "http://127.0.0.1:8002/static/vendor/chart.umd.js",
+        "http://127.0.0.1:8002/static/analytics.js",
+        "http://127.0.0.1:8002/api/analytics/options",
+        "http://127.0.0.1:8002/api/analytics/trend?year_min=1957&year_max=1967&source=all&metric=raggedness&aggregation=median",
+        "http://127.0.0.1:8002/api/analytics/histogram?year_min=1957&year_max=1967&source=all&metric=raggedness&bins=12",
+        "http://127.0.0.1:8002/api/analytics/scatter?year_min=1957&year_max=1967&source=all&x_metric=n_columns&y_metric=raggedness"
+      ],
+      "scriptsLocal": true
+    },
+    "duration_s": 0.889106035232544,
+    "engine": "owned nonpersistent WKWebView (system WebKit)",
+    "initial": {
+      "canvasHidden": true,
+      "checkboxDisabled": true,
+      "checkboxUnchecked": true,
+      "scriptLoaded": true,
+      "scriptsLocal": true
+    },
+    "ocr_controls": {
+      "alphaPixels": 14105,
+      "beforeHidden": true,
+      "diagnosticBlocks": 15,
+      "diagnosticsVisible": true,
+      "dimensions": [
+        772,
+        1000
+      ],
+      "localAssets": [
+        "http://127.0.0.1:8002/static/app.js"
+      ],
+      "matchesImageSize": true,
+      "offHidden": true,
+      "onAgain": true,
+      "onVisible": true,
+      "textExactlyMatchesHttpResponse": true,
+      "textUnchanged": true
+    },
+    "passed": true,
+    "shared_browser_used": false,
+    "process_return_code": 0,
+    "wall_duration_s": 1.254,
+    "all_network_resources_owned_origin": true
+  },
+  "post_runtime_payload_hashes_unchanged": true,
+  "passed": true,
+  "duration_s": {
+    "archive_and_source_verification": 0.046,
+    "runtime_validation_including_cleanup": 40.121,
+    "setup_and_runtime_total": 62.088
+  }
+}

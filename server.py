@@ -24,6 +24,7 @@ from fastapi.staticfiles import StaticFiles
 from yunost import TextExtractor, UnreadableImage
 from yunost.ocr import OCRTimeout
 from yunost.analytics import AnalyticsService, Metric
+from yunost.edges import analyze_page_edges
 from yunost.storage import CorpusFilter, CorpusRepository, default_database
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
@@ -200,7 +201,7 @@ def recognize(file: UploadFile = File(..., description="Фото или скан
 
 def page_response(result):
     overlay = base64.b64encode(result.overlay_png()).decode("ascii")
-    return {
+    response = {
         "text": result.text,
         "text_blocks": len(result),
         "other_blocks": len(result.blocks) - len(result),
@@ -212,3 +213,16 @@ def page_response(result):
         "page_size": {"width": result.gray.shape[1], "height": result.gray.shape[0]},
         "overlay": f"data:image/png;base64,{overlay}",
     }
+    try:
+        response["edge_analysis"] = analyze_page_edges(result)
+    except Exception:
+        # Geometry is optional diagnostics, never a condition for accepting text.
+        logging.exception("Physical line-edge analysis failed; preserving OCR result")
+        response["edge_analysis"] = {
+            "method": "components-v2",
+            "normalization": "padded_ocr_block_width",
+            "blocks": [],
+            "value": None,
+            "warnings": ["edge_analysis_unavailable"],
+        }
+    return response
