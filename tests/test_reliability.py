@@ -227,4 +227,4 @@ def test_static_script_is_served_and_html_uses_it():
         assert client.get('/health').json()['status'] == client.get('/api/health').json()['status']
         assert '/static/app.js' in client.get('/').text
         response = client.get('/static/app.js')
-        assert response.status_code == 200 and 'uploadSequence' in response.text
+        assert response.status_code == 200 and '/api/ocr' in response.text
