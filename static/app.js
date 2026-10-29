@@ -10,10 +10,12 @@ function setStatus(text, error = false) {
 async function upload(file) {
   if (!file) return;
   const id = ++uploads;
+  $('file').value = '';   // чтобы тот же файл можно было выбрать ещё раз
   page = null;
   $('result').hidden = $('diagnostics').hidden = true;
   $('show-edges').checked = false;
   drawEdges();
+  resetGenre();
   if (file.size > 25 * 1024 * 1024) return setStatus('Файл больше 25 МБ', true);
   setStatus('Распознаём страницу… это может занять до 90 секунд');
   const form = new FormData();
@@ -50,6 +52,7 @@ function show(data) {
     return item;
   }));
   $('result').hidden = $('diagnostics').hidden = false;
+  $('genre').hidden = !data.blocks.length;
 }
 
 // Фиолетовые точки на концах строк. Координаты сервера — в пикселях страницы,
@@ -84,4 +87,67 @@ $('download').addEventListener('click', () => {
   link.href = URL.createObjectURL(new Blob([$('text').value], { type: 'text/plain;charset=utf-8' }));
   link.download = 'text.txt';
   link.click();
+});
+
+// Дополнительно: проза или стихи. Сервер решает по координатам строк из ответа /api/ocr.
+function resetGenre() {
+  $('genre').hidden = true;
+  $('genre-boxes').setAttribute('hidden', '');   // у svg нет свойства .hidden, только атрибут
+  $('genre-summary').textContent = '';
+  $('genre-downloads').replaceChildren();
+  $('genre-list').replaceChildren();
+}
+
+function saveText(text, name) {
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
+  link.download = name;
+  link.click();
+}
+
+function showGenre(result) {
+  const blocks = page.blocks, names = { prose: 'проза', verse: 'стихи', short: 'коротких фрагментов', unknown: 'не определено' };
+  $('genre-summary').textContent = Object.entries(result.counts).filter(([, n]) => n)
+    .map(([kind, n]) => `${names[kind]}: ${n}`).join(' · ');
+  $('genre-downloads').replaceChildren(...[['prose', 'Скачать прозу', 'proza.txt'], ['verse', 'Скачать стихи', 'stihi.txt']]
+    .filter(([kind]) => result.counts[kind])
+    .map(([kind, title, file]) => {
+      const button = document.createElement('button');
+      button.textContent = title;
+      button.onclick = () => saveText(result.blocks.filter(v => v.kind === kind).map(v => blocks[v.index].text).join('\n\n'), file);
+      return button;
+    }));
+  $('genre-list').replaceChildren(...result.blocks.map(v => {
+    const row = document.createElement('div');
+    const ragged = v.raggedness === null ? '' : `, рваность края ${v.raggedness.toFixed(2)}`;
+    row.innerHTML = `<b>${v.index + 1}. <span class="${v.kind}">${v.label}</span></b> <small></small>`;
+    row.querySelector('small').textContent = `строк: ${v.lines}${ragged} — ${v.reason}`;
+    return row;
+  }));
+  // Рамки поверх страницы: синие — проза, оранжевые — стихи, серые — остальное.
+  const svg = $('genre-boxes');
+  svg.setAttribute('viewBox', `0 0 ${page.page_size.width} ${page.page_size.height}`);
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.innerHTML = result.blocks.map(v => {
+    const b = blocks[v.index];
+    return `<rect class="${v.kind}" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}"/>`;
+  }).join('');
+  svg.removeAttribute('hidden');
+}
+
+$('genre-run').addEventListener('click', async () => {
+  const data = page;
+  $('genre-summary').textContent = 'Разбираем…';
+  try {
+    const response = await fetch('/api/genre', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blocks: data.blocks.map(b => ({ line_boxes: b.line_boxes })) }),
+    });
+    const result = await response.json();
+    if (data !== page) return;
+    if (!response.ok) throw new Error(result.detail || 'Ошибка сервера ' + response.status);
+    showGenre(result);
+  } catch (error) {
+    if (data === page) $('genre-summary').textContent = error.message;
+  }
 });
