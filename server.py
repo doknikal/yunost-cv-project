@@ -12,10 +12,11 @@ import shutil
 import sqlite3
 import subprocess
 import threading
-from typing import Literal
+from typing import List, Literal
 
 from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
+from pydantic import BaseModel, Field
 from starlette.datastructures import Headers
 from starlette.formparsers import MultiPartException
 from starlette.responses import JSONResponse
@@ -25,6 +26,7 @@ from yunost import TextExtractor, UnreadableImage
 from yunost.ocr import OCRTimeout
 from yunost.analytics import AnalyticsService, Metric
 from yunost.edges import analyze_page_edges
+from yunost.genre import GenreAnalyzer
 from yunost.storage import CorpusFilter, CorpusRepository, default_database
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
@@ -197,6 +199,30 @@ def recognize(file: UploadFile = File(..., description="Фото или скан
                                   "Tesseract с русским языком.") from exc
     finally:
         _ocr_slot.release()
+
+
+class LineBox(BaseModel):
+    """Строка OCR из ответа /api/ocr (поле line_boxes блока)."""
+    x: int
+    y: int
+    right: int
+    bottom: int
+    text: str = Field('', max_length=2000)
+
+
+class GenreBlock(BaseModel):
+    line_boxes: List[LineBox] = Field(default_factory=list, max_length=2000)
+
+
+class GenreRequest(BaseModel):
+    blocks: List[GenreBlock] = Field(..., max_length=500)
+
+
+@app.post("/api/genre")
+def genre(request: GenreRequest):
+    """Проза, стихи или короткий фрагмент для уже распознанных блоков — по рваности правого края.
+    Картинку заново не читает и ничего не сохраняет."""
+    return GenreAnalyzer().analyze([block.model_dump() for block in request.blocks])
 
 
 def page_response(result):
