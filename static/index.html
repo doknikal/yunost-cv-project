@@ -3,127 +3,71 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Текст из «Юности»</title>
+<title>Распознавание текста газет и журналов</title>
 <style>
-  :root {
-    --bg: #faf7f2; --card: #ffffff; --ink: #1f1b16; --muted: #6b645b;
-    --line: #e4ddd2; --accent: #b5142a; --accent-ink: #ffffff; --ok: #2f7d32;
-    --warn-bg: #fff4e0; --warn-ink: #7a4b00;
-  }
+  :root { --bg: #faf7f2; --card: #fff; --ink: #1f1b16; --muted: #6b645b; --line: #e4ddd2; --accent: #b5142a; }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #17140f; --card: #211d17; --ink: #f1ebe0; --muted: #a39a8b;
-      --line: #383126; --accent: #e0414f; --accent-ink: #17140f; --ok: #6fbf73;
-      --warn-bg: #3a2c10; --warn-ink: #f2cf8a;
-    }
+    :root { --bg: #17140f; --card: #211d17; --ink: #f1ebe0; --muted: #a39a8b; --line: #383126; --accent: #e0414f; }
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink);
-         font: 16px/1.55 Georgia, "Times New Roman", serif; }
-  main { max-width: 960px; margin: 0 auto; padding: 32px 16px 64px; }
-  h1 { font-size: 2rem; margin: 0 0 8px; letter-spacing: -.01em; }
-  h1 span { color: var(--accent); }
-  .lead { color: var(--muted); margin: 0 0 24px; max-width: 60ch; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 Georgia, serif; }
+  main { max-width: 960px; margin: auto; padding: 32px 16px; }
+  h1 span, a, .error { color: var(--accent); }
+  .muted, small, footer { color: var(--muted); }
   .drop { display: block; border: 2px dashed var(--line); border-radius: 12px; background: var(--card);
-          padding: 36px 16px; text-align: center; cursor: pointer; transition: border-color .15s; }
-  .drop:hover, .drop.over, .drop:focus-within { border-color: var(--accent); }
-  .drop strong { display: block; font-size: 1.1rem; margin-bottom: 4px; }
-  .drop small { color: var(--muted); }
-  .drop input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-  .status { margin: 16px 0; min-height: 1.5em; color: var(--muted); }
-  .status.error { color: var(--accent); }
-  .spinner { display: inline-block; width: 14px; height: 14px; margin-right: 8px; vertical-align: -2px;
-             border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%;
-             animation: spin .8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .result { display: none; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-  .result.show { display: grid; }
+          padding: 32px; text-align: center; cursor: pointer; }
+  .drop:hover { border-color: var(--accent); }
+  .drop input { display: none; }
+  [hidden] { display: none !important; }
+  #result { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
-  .panel h2 { font-size: 1rem; margin: 0 0 12px; font-family: system-ui, sans-serif;
-              text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-  .panel img { width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--line); display: block; }
-  .overlay-stage { position: relative; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-  .overlay-stage img { border: 0; border-radius: 0; }
-  .overlay-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  .edge-controls { display: block; margin-top: 12px; font: .85rem system-ui, sans-serif; }
-  .legend { font: .85rem system-ui, sans-serif; color: var(--muted); margin: 10px 0 0; }
-  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -1px; margin: 0 4px 0 0; }
-  textarea { width: 100%; min-height: 420px; resize: vertical; border: 1px solid var(--line); border-radius: 6px;
-             padding: 12px; background: var(--bg); color: var(--ink); font: .9rem/1.5 monospace;
-             white-space: pre; overflow-wrap: normal; }
-  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-  button { font: 600 .95rem system-ui, sans-serif; padding: 9px 16px; border-radius: 8px; cursor: pointer;
-           border: 1px solid var(--line); background: var(--card); color: var(--ink); }
-  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  button:focus-visible, .drop:focus-within { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
-  .note { margin-top: 12px; padding: 10px 14px; border-radius: 8px; background: var(--warn-bg); color: var(--warn-ink);
-          font: .9rem system-ui, sans-serif; }
-  .diagnostics { margin-top: 20px; font-family: system-ui, sans-serif; }
-  .diagnostics summary { cursor: pointer; }
-  .block-check { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 12px; }
-  .block-check pre { white-space: pre; overflow-x: auto; font: .9rem/1.5 monospace; }
-  .block-check small { color: var(--muted); }
-  footer { margin-top: 40px; color: var(--muted); font: .85rem/1.5 system-ui, sans-serif; max-width: 70ch; }
-  @media (max-width: 760px) { .result.show { grid-template-columns: 1fr; } textarea { min-height: 280px; } }
+  .stage { position: relative; }
+  .stage img, .stage canvas { width: 100%; display: block; }
+  .stage canvas { position: absolute; inset: 0; height: 100%; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 420px; font: .9rem/1.5 monospace;
+             background: var(--bg); color: var(--ink); white-space: pre; }
+  button { font: inherit; padding: 8px 14px; margin-top: 8px; cursor: pointer; }
+  pre { overflow-x: auto; }
+  @media (max-width: 760px) { #result { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <main>
-  <nav aria-label="Разделы проекта"><a href="/analytics">Аналитика корпуса: три настраиваемых графика</a> · <a href="/docs">API</a></nav>
-  <h1>Текст из <span>«Юности»</span></h1>
-  <p class="lead">Загрузите фото или скан страницы журнала. Сервис распознаёт текстовые блоки:
-     прозу, стихи, заголовки и короткие фрагменты. Строки и отступы сохраняются, жанрового отбора нет.</p>
+  <nav><a href="/analytics">Аналитика корпуса</a> · <a href="/docs">API</a></nav>
+  <h1>Распознавание текста <span>газет и журналов</span></h1>
+  <p class="muted">Загрузите фото или скан страницы. Сервис найдёт все текстовые блоки: статьи, стихи,
+     заголовки, подписи. Строки и отступы сохраняются.</p>
 
   <label class="drop" id="drop">
-    <strong>Перетащите файл сюда или нажмите, чтобы выбрать</strong>
-    <small>JPG, PNG или HEIC (фото с iPhone), до 25 МБ</small>
+    <b>Перетащите файл сюда или нажмите, чтобы выбрать</b><br>
+    <small>JPG, PNG или HEIC, до 25 МБ</small>
     <input type="file" id="file" accept="image/*,.heic,.heif">
   </label>
+  <p id="status" role="status"></p>
 
-  <div class="status" id="status" role="status" aria-live="polite"></div>
-
-  <section class="result" id="result">
+  <section id="result" hidden>
     <div class="panel">
-      <h2>Что нашли на странице</h2>
-      <div class="overlay-stage">
-        <img id="overlay" alt="Страница с выделенными блоками">
-        <canvas id="edge-canvas" hidden aria-hidden="true"></canvas>
+      <div class="stage">
+        <img id="overlay" alt="Страница с найденными блоками">
+        <canvas id="edge-canvas" hidden></canvas>
       </div>
-      <p class="legend"><i style="background:#3ca000"></i>распознанный текст
-         &nbsp; <i style="background:#969696"></i>сомнительные знаки OCR</p>
-      <label class="edge-controls"><input type="checkbox" id="show-edges" disabled aria-describedby="edge-note">
-        Показать правые края строк</label>
-      <p class="legend" id="edge-note">Фиолетовые точки — правые края строк, найденные по изображению.</p>
+      <small>Зелёные рамки — текст, серые — сомнительные знаки.</small><br>
+      <label><input type="checkbox" id="show-edges" disabled> Показать правые края строк</label>
     </div>
     <div class="panel">
-      <h2>Распознанный текст</h2>
       <textarea id="text" wrap="off" spellcheck="false" aria-label="Распознанный текст"></textarea>
-      <div class="actions">
-        <button class="primary" id="copy">Скопировать</button>
-        <button id="download">Скачать .txt</button>
-      </div>
-      <div class="note" id="note" hidden></div>
+      <button id="copy">Скопировать</button> <button id="download">Скачать .txt</button>
     </div>
   </section>
 
-  <details class="diagnostics" id="diagnostics" hidden>
-    <summary>Проверить текстовые блоки</summary>
-    <p>Номера совпадают с рамками на странице. Здесь можно сверить текст и координаты.
-       Уверенность OCR — внутренний показатель, а не гарантия правильности.</p>
-    <p>Строки CV и неровность правого края описывают физическую геометрию изображения, а не точность OCR
-       и не жанр текста. Неровность — разброс правых краёв (σ), делённый на ширину OCR-блока с полями;
-       это не прежняя корпусная метрика по ширине колонки. Для оценки нужно не менее четырёх найденных строк.
-       «Нет данных» или «нет оценки» не означает нулевую неровность.</p>
+  <details id="diagnostics" hidden>
+    <summary>Блоки по отдельности</summary>
+    <p class="muted">Номера совпадают с рамками на странице. Неровность правого края — разброс правых краёв строк,
+       делённый на ширину блока; считается, если в блоке не меньше четырёх строк.</p>
     <div id="block-list"></div>
   </details>
 
-  <footer>
-    Автоматическое распознавание ошибается: проверяйте текст по оригиналу. Программа не различает жанры.
-    Сложная вёрстка, декоративные буквы, иллюстрации и изогнутые строки могут вызывать пропуски и ошибки.
-    Загрузки удаляются после обработки. Большие файлы могут временно записываться на диск.
-  </footer>
+  <footer><p>Распознавание ошибается: сверяйте текст с оригиналом. Загрузки удаляются после обработки.</p></footer>
 </main>
-
-<script src="/static/app.js" defer></script>
+<script src="/static/app.js"></script>
 </body>
 </html>
