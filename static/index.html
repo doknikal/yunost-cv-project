@@ -27,6 +27,12 @@
              background: var(--bg); color: var(--ink); white-space: pre; }
   button { font: inherit; padding: 8px 14px; margin-top: 8px; cursor: pointer; }
   pre { overflow-x: auto; }
+  .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .stage rect { fill-opacity: .15; stroke-width: 6; }
+  .prose { color: #2a78d6; fill: #2a78d6; stroke: #2a78d6; }
+  .verse { color: #eb6834; fill: #eb6834; stroke: #eb6834; }
+  .short, .unknown { color: #8f877b; fill: #8f877b; stroke: #8f877b; }
+  #genre-list div { border-top: 1px solid var(--line); padding: 6px 0; }
   @media (max-width: 760px) { #result { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -49,6 +55,7 @@
       <div class="stage">
         <img id="overlay" alt="Страница с найденными блоками">
         <canvas id="edge-canvas" hidden></canvas>
+        <svg id="genre-boxes" hidden></svg>
       </div>
       <small>Зелёные рамки — текст, серые — сомнительные знаки.</small><br>
       <label><input type="checkbox" id="show-edges" disabled> Показать правые края строк</label>
@@ -57,6 +64,16 @@
       <textarea id="text" wrap="off" spellcheck="false" aria-label="Распознанный текст"></textarea>
       <button id="copy">Скопировать</button> <button id="download">Скачать .txt</button>
     </div>
+  </section>
+
+  <section id="genre" class="panel" hidden>
+    <h3>Дополнительно: проза или стихи?</h3>
+    <p class="muted">Главный признак — рваность правого края: строки прозы доходят до края колонки,
+       у стихов край рваный. Учитываются ещё переносы слов, строки с заглавной буквы и «лесенка».</p>
+    <button id="genre-run">Разобрать по рваности края</button>
+    <p id="genre-summary"></p>
+    <div id="genre-downloads"></div>
+    <div id="genre-list"></div>
   </section>
 
   <details id="diagnostics" hidden>

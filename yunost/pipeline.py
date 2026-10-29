@@ -180,38 +180,48 @@ class ProseExtractor:
 
     def _verify(self, block, text, lines):
         """Require positive prose evidence; detector candidates can include poems."""
-        s = self.settings
-        structure = text_structure(lines, block.line_h)
         block.text = text  # Rejected OCR remains available for diagnostics only.
-        if (cyrillic_ratio(lines) < self.settings.min_cyrillic
-                or word_quality(lines) < self.settings.min_word_quality):
-            block.is_prose, block.rejected = False, "не текст"
-        elif structure.lines < s.min_lines:
-            block.is_prose, block.rejected = False, "мало строк"
-        elif (capital_start_ratio(lines) > s.max_capital_start
-              or structure.deep_indent > s.max_deep_indent):
-            block.is_prose, block.rejected = False, "стихи"
-        else:
-            # Word hyphenation and lowercase continuations are independent of
-            # the unreliable pixel-band flushness of a tilted candidate. For
-            # custom OCR engines without coordinates, use that score only as
-            # a fallback, never as sufficient evidence on its own.
-            flush = structure.right_flush
-            if flush is None:
-                flush = block.flush
-            wrapping = structure.continuation >= s.min_continuation
-            hyphenated = (structure.hyphenated >= s.min_hyphenated
-                          and structure.hyphenated * (structure.lines - 1) >= 2)
-            # A single word break can support a short prose paragraph, but
-            # only with near-continuous wrapping AND a very consistent margin.
-            short_wrapped = (structure.hyphenated > 0 and flush >= 0.85
-                             and structure.continuation >= 0.80
-                             and structure.stanza_breaks < 0.10)
-            # A handful of similarly long poem lines can look justified by
-            # chance. Without word hyphenation, require a larger sample.
-            regular = (structure.lines >= s.min_unhyphenated_lines
-                       and flush >= s.min_ocr_flush and structure.stanza_breaks < 0.10)
-            if wrapping and (regular or hyphenated or short_wrapped):
-                block.is_prose, block.rejected = True, ""
-            else:
-                block.is_prose, block.rejected = False, "мало признаков прозы"
+        is_prose, reason = prose_decision(lines, block.line_h, self.settings, fallback_flush=block.flush)
+        block.is_prose, block.rejected = is_prose, reason
+
+
+def prose_decision(lines, line_h, settings, fallback_flush=None):
+    """Решение «проза или нет» по физическим строкам OCR: (is_prose, причина отказа).
+
+    Главный признак — ровность правого края (обратная сторона рваности); рядом —
+    переносы слов, продолжение фразы на следующей строке, строки с заглавной буквы,
+    отступы «лесенкой» и пустые строки между строфами. Используется и старым
+    конвейером прозы, и дополнительным разбором «проза / стихи» (genre.py).
+    """
+    s = settings
+    structure = text_structure(lines, line_h)
+    if (cyrillic_ratio(lines) < s.min_cyrillic
+            or word_quality(lines) < s.min_word_quality):
+        return False, "не текст"
+    if structure.lines < s.min_lines:
+        return False, "мало строк"
+    if (capital_start_ratio(lines) > s.max_capital_start
+            or structure.deep_indent > s.max_deep_indent):
+        return False, "стихи"
+    # Word hyphenation and lowercase continuations are independent of
+    # the unreliable pixel-band flushness of a tilted candidate. For
+    # custom OCR engines without coordinates, use that score only as
+    # a fallback, never as sufficient evidence on its own.
+    flush = structure.right_flush
+    if flush is None:
+        flush = fallback_flush
+    wrapping = structure.continuation >= s.min_continuation
+    hyphenated = (structure.hyphenated >= s.min_hyphenated
+                  and structure.hyphenated * (structure.lines - 1) >= 2)
+    # A single word break can support a short prose paragraph, but
+    # only with near-continuous wrapping AND a very consistent margin.
+    short_wrapped = (structure.hyphenated > 0 and flush is not None and flush >= 0.85
+                     and structure.continuation >= 0.80
+                     and structure.stanza_breaks < 0.10)
+    # A handful of similarly long poem lines can look justified by
+    # chance. Without word hyphenation, require a larger sample.
+    regular = (structure.lines >= s.min_unhyphenated_lines and flush is not None
+               and flush >= s.min_ocr_flush and structure.stanza_breaks < 0.10)
+    if wrapping and (regular or hyphenated or short_wrapped):
+        return True, ""
+    return False, "мало признаков прозы"
