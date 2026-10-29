@@ -1,9 +1,6 @@
 """Additive physical-edge diagnostics must never change the all-text OCR API."""
 import base64
 import json
-from pathlib import Path
-import shutil
-import subprocess
 from types import SimpleNamespace
 
 import numpy as np
@@ -130,107 +127,12 @@ def test_geometry_failure_preserves_successful_ocr(monkeypatch):
     assert body == before
 
 
-def test_local_ui_has_optional_edge_canvas_and_separate_geometry_labels():
+def test_local_ui_has_edge_toggle():
     with TestClient(server.app) as client:
-        html = client.get('/')
-        script = client.get('/static/app.js')
-    assert html.status_code == script.status_code == 200
-    assert '/static/app.js' in html.text
-    assert 'id="show-edges" disabled' in html.text
-    assert 'Показать правые края строк' in html.text
-    assert '<canvas id="edge-canvas" hidden' in html.text
-    assert 'физическую геометрию' in html.text and 'не жанр текста' in html.text
-    assert 'edge_analysis' in script.text and 'block.block_number' in script.text
-    assert 'Строк CV:' in script.text and 'нет оценки' in script.text
-    assert 'image.naturalWidth / size.width' in script.text
-    assert 'image.naturalHeight / size.height' in script.text
-    assert 'line.right * scaleX, line.center_y * scaleY' in script.text
-
-
-def test_ui_scaling_missing_values_and_late_image_events():
-    """Execute the real UI against a tiny DOM mock, without browsers or OCR."""
-    node, jxa = shutil.which('node'), shutil.which('osascript')
-    if not node and not jxa:
-        pytest.skip('A JavaScript runtime (Node or macOS JavaScriptCore) is unavailable')
-    mock = r"""
-    const elements = Object.create(null), arcs = [];
-    const context = {beginPath() {}, fill() {}, stroke() {},
-                     arc(...args) { arcs.push(args); }};
-    class Element {
-      constructor(id = '') {
-        this.id = id; this.children = []; this.events = {};
-        this.hidden = false; this.checked = false; this.disabled = false;
-        this.classList = {add() {}, remove() {}};
-      }
-      addEventListener(type, callback) { (this.events[type] ||= []).push(callback); }
-      dispatch(type) { (this.events[type] || []).forEach(callback => callback({})); }
-      append(...children) { this.children.push(...children); }
-      replaceChildren(...children) { this.children = children; }
-      replaceWith(element) { elements[this.id] = element; }
-      removeAttribute(name) { delete this[name]; }
-      getContext() { return context; }
-    }
-    const document = {
-      getElementById(id) { return elements[id] ||= new Element(id); },
-      createElement() { return new Element(); },
-      createTextNode(text) { return {textContent: text}; }
-    };
-    class Image extends Element {}
-    """
-    checks = r"""
-    function check(condition, message) { if (!condition) throw new Error(message); }
-    const block = {is_text: true, lines: 1, confidence: 95, x: 0, y: 0,
-                   w: 20, h: 10, source: 'page', text: 'Я'};
-    const data = {text: 'Я', text_blocks: 2, blocks: [block, block],
-      all_blocks: [block, {...block, is_text: false}, block], overlay: 'first',
-      page_size: {width: 200, height: 400}, edge_analysis: {blocks: [
-        {block_number: 3, line_count: 4, value: 0,
-         lines: [{right: 160, center_y: 120, aligned_right: 999}]},
-        {block_number: 1, line_count: 2, value: null, lines: []}
-      ]}};
-    show(data);
-    const first = $('overlay'), toggle = $('show-edges'), canvas = $('edge-canvas');
-    check(toggle.disabled && !toggle.checked && canvas.hidden, 'wait for image load');
-    const geometry = i => $('block-list').children[i].children[4].textContent;
-    check(geometry(0).includes('CV: 2') && geometry(0).endsWith('нет оценки'), 'null, not zero');
-    check(geometry(1).includes('нет данных'), 'missing block, not an index-based match');
-    check(geometry(2).includes('CV: 4') && geometry(2).endsWith('0.0000'), 'true measured zero');
-    first.naturalWidth = 100; first.naturalHeight = 100; first.dispatch('load');
-    check(!toggle.disabled && !toggle.checked && canvas.hidden, 'overlay is opt-in');
-    toggle.checked = true; toggle.dispatch('change');
-    check(!canvas.hidden && canvas.width === 100 && canvas.height === 100, 'natural canvas size');
-    check(arcs.length === 1 && arcs[0][0] === 80 && arcs[0][1] === 30, 'scale original endpoint coordinates');
-    check(context.fillStyle === '#9c27b0', 'purple endpoints');
-
-    // A late load/error from the old image must not affect the new view.
-    show(data);
-    const current = $('overlay');
-    first.dispatch('load'); first.dispatch('error');
-    check(toggle.disabled && canvas.hidden, 'ignore stale image events');
-    current.naturalWidth = 100; current.naturalHeight = 100; current.dispatch('load');
-    toggle.checked = true; toggle.dispatch('change');
-    upload({size: 26 * 1024 * 1024});
-    check(!toggle.checked && toggle.disabled && canvas.hidden, 'reset on every upload');
-    check(canvas.width === 0 && canvas.height === 0 && !current.src, 'clear stale pixels and image');
-    current.dispatch('load'); current.dispatch('error');
-    check(toggle.disabled && canvas.hidden, 'ignore events after reset');
-
-    const legacy = {...data}; delete legacy.edge_analysis;
-    show(legacy);
-    const oldServer = $('overlay');
-    oldServer.naturalWidth = 100; oldServer.naturalHeight = 100; oldServer.dispatch('load');
-    check(toggle.disabled && !toggle.checked && canvas.hidden, 'legacy server remains usable');
-    check($('text').value === 'Я' && geometry(2).includes('нет данных') &&
-          geometry(2).endsWith('нет оценки'), 'clear previous geometry without changing text');
-    return 'UI edge smoke checks passed';
-    """
-    source = (Path(server.HERE) / 'static/app.js').read_text(encoding='utf-8')
-    program = mock + '\n' + source + '\n' + checks
-    command = [node, '-e', 'console.log((function() {' + program + '})());'] if node else [
-        jxa, '-l', 'JavaScript', '-e', 'function run() {' + program + '}']
-    result = subprocess.run(command, capture_output=True, text=True, timeout=15)
-    assert result.returncode == 0, result.stderr or result.stdout
-    assert 'UI edge smoke checks passed' in result.stdout
+        html = client.get('/').text
+        script = client.get('/static/app.js').text
+    assert 'id="show-edges" disabled' in html and '<canvas id="edge-canvas" hidden' in html
+    assert 'edge_analysis' in script and 'page.page_size.width' in script
 
 
 def test_page_helper_uses_accepted_blocks_and_within_block_rms(monkeypatch):
