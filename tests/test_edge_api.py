@@ -99,7 +99,7 @@ def test_real_helper_handles_empty_page_without_ocr():
     assert body['text'] == '' and body['blocks'] == [] and body['first_block'] is None
 
 
-@pytest.mark.parametrize('text', ['Рассказ. Обычная проза.', 'Стих\nЕщё строка', 'Я', '2026', 'TITLE'])
+@pytest.mark.parametrize('text', ['Рассказ. Обычная проза.', 'Стих\nЕще строка', 'Я', '2026', 'TITLE'])
 @pytest.mark.parametrize('value', [None, 0.0, .7])
 def test_edge_value_does_not_filter_any_text_or_assign_genre(monkeypatch, text, value):
     result = page([block(text)])

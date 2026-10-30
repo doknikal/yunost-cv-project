@@ -35,7 +35,7 @@ MAX_UPLOAD = 25 * 1024 * 1024          # 25 МБ — с запасом для ф
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 app = FastAPI(title="Юность: текст со страницы журнала",
-              description="Сервис распознаёт блоки текста без отбора по жанру: прозу, стихи, "
+              description="Сервис распознает блоки текста без отбора по жанру: прозу, стихи, "
                           "заголовки и короткие фрагменты. Сохраняет строки и отступы. "
                           "Загрузки удаляются после обработки.")
 app.mount("/static", StaticFiles(directory=os.path.join(HERE, "static")), name="static")
@@ -91,7 +91,7 @@ app.add_middleware(UploadSizeLimit)
 
 
 def get_extractor():
-    """Движок создаём при первом запросе, чтобы сервер стартовал и без Tesseract."""
+    """Движок создаем при первом запросе, чтобы сервер стартовал и без Tesseract."""
     global _extractor
     if _extractor is None:
         _extractor = TextExtractor()
@@ -184,7 +184,7 @@ def recognize(file: UploadFile = File(..., description="Фото или скан
     if not data:
         raise HTTPException(400, "Файл пустой")
     if not _ocr_slot.acquire(blocking=False):
-        raise HTTPException(429, "Другая страница ещё распознаётся. Повторите через несколько секунд.",
+        raise HTTPException(429, "Другая страница еще распознается. Повторите через несколько секунд.",
                             headers={'Retry-After': '3'})
     try:
         result = get_extractor().extract(data)
@@ -192,7 +192,7 @@ def recognize(file: UploadFile = File(..., description="Фото или скан
     except UnreadableImage as exc:
         raise HTTPException(400, str(exc))
     except OCRTimeout as exc:
-        raise HTTPException(504, "Распознавание заняло слишком много времени. Попробуйте более чёткий скан.") from exc
+        raise HTTPException(504, "Распознавание заняло слишком много времени. Попробуйте более четкий скан.") from exc
     except Exception as exc:                       # Tesseract не установлен, сбой OCR и т.п.
         logging.exception("OCR failed")
         raise HTTPException(500, "Не удалось распознать страницу. Проверьте, что установлен "

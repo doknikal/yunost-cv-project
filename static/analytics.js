@@ -58,7 +58,7 @@ async function refresh(kind) {
                                        source: $('source').value, ...CHARTS[kind].params() });
   try {
     const data = await getJSON(`/api/analytics/${kind}?${params}`);
-    if (requests[kind] !== id) return;     // пришёл ответ на устаревший запрос
+    if (requests[kind] !== id) return;     // пришел ответ на устаревший запрос
     charts[kind]?.destroy();
     $(kind + '-status').className = '';
     $(kind + '-status').textContent = `Страниц в выборке: ${data.selected_pages}, на графике: ${data.used_pages}` +

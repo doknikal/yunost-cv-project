@@ -75,7 +75,7 @@ def all_text_engine(russian_engine):
 
 def search_text(text):
     # Only comparison normalization: downloadable output keeps physical lines.
-    text = re.sub(r'(?<=\w)-\s*\n\s*(?=[а-яё])', '', text)
+    text = re.sub(r'(?<=\w)-\s*\n\s*(?=[а-я\u0451])', '', text)
     return re.sub(r'\s+', ' ', text).lower()
 
 

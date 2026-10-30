@@ -10,14 +10,14 @@ function setStatus(text, error = false) {
 async function upload(file) {
   if (!file) return;
   const id = ++uploads;
-  $('file').value = '';   // чтобы тот же файл можно было выбрать ещё раз
+  $('file').value = '';   // чтобы тот же файл можно было выбрать еще раз
   page = null;
   $('result').hidden = $('diagnostics').hidden = true;
   $('show-edges').checked = false;
   drawEdges();
   resetGenre();
   if (file.size > 25 * 1024 * 1024) return setStatus('Файл больше 25 МБ', true);
-  setStatus('Распознаём страницу… это может занять до 90 секунд');
+  setStatus('Распознаем страницу… это может занять до 90 секунд');
   const form = new FormData();
   form.append('file', file);
   try {

@@ -135,7 +135,7 @@ class TesseractEngine(OcrEngine):
 
 def join_lines(lines, indent):
     """Собирает строки в текст: красная строка (отступ) начинает новый абзац,
-    слово, перенесённое через дефис, склеивается обратно."""
+    слово, перенесенное через дефис, склеивается обратно."""
     if not lines:
         return ""
     base = min(ln.left for ln in lines)
@@ -171,7 +171,7 @@ def cyrillic_ratio(lines):
     chars = [c for ln in lines for c in ln.text if not c.isspace()]
     if not chars:
         return 0.0
-    cyr = sum(1 for c in chars if "а" <= c.lower() <= "я" or c.lower() == "ё")
+    cyr = sum(1 for c in chars if "а" <= c.lower() <= "я" or c.lower() == "\u0451")
     return cyr / len(chars)
 
 

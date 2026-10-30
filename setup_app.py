@@ -18,7 +18,7 @@ MODEL_BASE = f'https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/{MO
 
 def verify_weights(path):
     if hashlib.sha256(path.read_bytes()).hexdigest() != WEIGHTS_SHA256:
-        raise RuntimeError(f'Неверная контрольная сумма весов: {path}. Файл не изменён.')
+        raise RuntimeError(f'Неверная контрольная сумма весов: {path}. Файл не изменен.')
 
 
 def ensure_weights():

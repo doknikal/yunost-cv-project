@@ -96,7 +96,7 @@ class CorpusRepository:
         if any(not required.issubset(row) or any(row[k] is None for k in required) for row in rows):
             raise ValueError('В CSV отсутствуют обязательные метаданные')
         if not rows or any(not r.get('file') for r in rows):
-            raise ValueError('В CSV нет страниц или имён файлов')
+            raise ValueError('В CSV нет страниц или имен файлов')
         if len({r['file'] for r in rows}) != len(rows):
             raise ValueError('Повторяющиеся страницы в CSV')
         return {r['file']: r for r in rows}, hashlib.sha256(content).hexdigest()

@@ -5,7 +5,7 @@ pipeline.py — старый конвейер только прозы (совм�
     файл -> страница (нужной высоты, в оттенках серого)
          -> BlockDetector: кандидаты по геометрии
          -> подготовка и OcrEngine: физические строки кандидатов
-         -> проверка структуры: подтверждённая проза
+         -> проверка структуры: подтвержденная проза
          -> PageResult: текст, блоки и картинка с разметкой
 """
 import io
@@ -81,7 +81,7 @@ class PageResult:
         return "\n\n".join(b.text for b in self.prose if b.text)
 
     def overlay_png(self):
-        """Страница с рамками: зелёные — проза (прочитана), серые — всё остальное."""
+        """Страница с рамками: зеленые — проза (прочитана), серые — все остальное."""
         vis = cv2.cvtColor(self.gray, cv2.COLOR_GRAY2BGR)
         for number, b in enumerate(self.blocks, start=1):
             color = PROSE_COLOR if b.is_prose else OTHER_COLOR
@@ -94,7 +94,7 @@ class PageResult:
 
 
 class ProseExtractor:
-    """Главный объект: достаёт прозу со страницы журнала."""
+    """Главный объект: достает прозу со страницы журнала."""
 
     def __init__(self, engine=None, settings=None):
         self.engine = engine or TesseractEngine()
@@ -120,10 +120,10 @@ class ProseExtractor:
             # anchor rather than weakening the standalone short-block gate.
             anchors = [a for a in blocks if a.is_prose and
                        b.overlap_with(a) >= 0.95 * a.area]
-            words = re.findall(r'[а-яё]+', text.lower())
+            words = re.findall(r'[а-я\u0451]+', text.lower())
             retained = []
             for anchor in anchors:
-                original = re.findall(r'[а-яё]+', anchor.text.lower())
+                original = re.findall(r'[а-я\u0451]+', anchor.text.lower())
                 matches = SequenceMatcher(None, original, words, autojunk=False)
                 retained.append(sum(m.size for m in matches.get_matching_blocks()) /
                                 max(1, len(original)))
@@ -159,7 +159,7 @@ class ProseExtractor:
         the fuller reading, retaining the partial OCR in diagnostics.
         """
         accepted = [b for b in blocks if b.is_prose]
-        tokens = {id(b): re.findall(r"[а-яё]+", b.text.lower()) for b in accepted}
+        tokens = {id(b): re.findall(r"[а-я\u0451]+", b.text.lower()) for b in accepted}
         accepted.sort(key=lambda b: len(tokens[id(b)]), reverse=True)
         kept = []
         for block in accepted:

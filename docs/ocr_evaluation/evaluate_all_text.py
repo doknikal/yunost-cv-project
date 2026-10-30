@@ -22,7 +22,7 @@ HERE = Path(__file__).resolve().parent
 
 
 def normalize(text):
-    text = re.sub(r'(?<=\w)-\s*\n\s*(?=[а-яё])', '', text.lower())
+    text = re.sub(r'(?<=\w)-\s*\n\s*(?=[а-я\u0451])', '', text.lower())
     text = unicodedata.normalize('NFD', text)
     text = ''.join(c for c in text if unicodedata.category(c) != 'Mn')
     return re.sub(r'[^\w]+', ' ', text).strip()

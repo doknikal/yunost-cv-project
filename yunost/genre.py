@@ -69,7 +69,7 @@ class GenreAnalyzer:
         raggedness = None if structure.right_flush is None else 1 - structure.right_flush
         capitals = capital_start_ratio(lines)
         s = self.settings
-        if structure.lines == 0:              # только цифры и знаки: номер страницы, звёздочки
+        if structure.lines == 0:              # только цифры и знаки: номер страницы, звездочки
             return GenreVerdict(index, 'unknown', None, 0, capitals, 'нет слов: номер страницы или знаки')
         if structure.lines < s.min_lines:
             return GenreVerdict(index, 'short', raggedness, structure.lines, capitals,

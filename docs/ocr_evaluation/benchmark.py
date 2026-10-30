@@ -111,7 +111,7 @@ class PaddleEngine(OcrEngine):
 
 
 def normalize(text):
-    text = re.sub(r"(?<=\w)-\s*\n\s*(?=[а-яёa-z])", "", text)
+    text = re.sub(r"(?<=\w)-\s*\n\s*(?=[а-я\u0451a-z])", "", text)
     return re.sub(r"\s+", " ", text).strip()
 
 
